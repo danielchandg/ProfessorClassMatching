@@ -1,0 +1,16 @@
+[[extend 'layout.html']]
+
+<div class="section">
+   <div>
+      Here we are. Roll: [[=r]] out of 10
+   </div>
+   [[if r > 5:]]
+   <div>
+      This was a big number.
+   </div>
+   [[else:]]
+   <div>
+      You can do better.
+   </div>
+   [[pass]]
+</div>
