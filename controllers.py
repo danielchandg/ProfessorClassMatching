@@ -26,63 +26,62 @@ Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app w
 """
 
 from py4web import action, request, abort, redirect, URL
-from yatl.helpers import A
-from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash
+from py4web.utils.form import Form, FormStyleBulma
 from py4web.utils.url_signer import URLSigner
+from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash
 from .models import get_user_email
-import random
-import uuid
-import json
 
 url_signer = URLSigner(session)
 
-@action('index')
-@action.uses('index.html', db, session, auth)
+@action('index', method=['GET', 'POST'])
+@action.uses('index.html', db, auth.user, session, url_signer)
 def index():
-    print("User:", get_user_email())
-    c = session.get('num_visits', 0)
-    c += 1
-    session['num_visits'] = c
-    return dict(num_visits=c)
+    # If user is not logged in, should redirect to login page.
+    # Otherwise, should be the home page for the user.
+    # Here, the user can:
+    # 1) Create a new matching
+    # 2) Select a previously created matching
+    # 3) Delete a matching
 
-@action('simple')
-@action.uses('simple.html', auth.user)
-def simple():
-    r = random.randint(0, 10)
-    return dict(r=r)
+    # TODO: Change formstyle to something customized
+    # TODO: Change form name to default as 'Matching 1', 'Matching 2', etc.
+    form = Form(db.matchings, csrf_session=session, formstyle=FormStyleBulma)
 
-# Session tracker using db
-# If no session is detected, gives the browser a session ID and a corresponding db entry
-# Files modified: controllers.py, models.py, oldie.html
-# Considerations: Multiple tabs have different session IDs.
-# Use cookies so multiple tabs share the same session ID.
-@action('oldie')
-@action.uses('oldie', db)
-def oldie():
-    # Get the session ID
-    s = request.params.get('s')
-    if s is None:
-        # Create a session ID
-        s = uuid.uuid1()
-        redirect(URL('oldie', vars=dict(s=s)))
+    if form.accepted:
+        # TODO: Use form.vars['id'] to update db.settings
+        # Should redirect to '/matching/<form.vars['id']> so user can immediately start adding classes/professors
+        pass
+
+    elif form.errors:
+        # TODO: Display error message
+        pass
     
-    c = db(db.poker.secret == s).select().first()
-    if c is None:
-        d = {}
-    else:
-        d = json.loads(c.content)
-    # d is the session contents of the session ID (e.g. uuid, user, cookies, num_visits)
-    counter = d.get('counter', 0)
-    counter += 1
-    d['counter'] = counter
-    # Store d back to the database
-    if c is None:
-        db.poker.insert(secret=s, content=json.dumps(d))
-    else:
-        db(db.poker.secret == s).update(content=json.dumps(d))
-    return dict(counter=counter)
+    # This dict() should contain all matchings for this user as well
+    return dict(form=form)
 
-@action('add', method=["GET", "POST"])
-@action.uses('add.html', url_signer, db, session, auth.user)
-def add():
-    form = Form(db.product, csrf_session=session, formstyle=FormStyleBulma)
+# The url '/matching' for now just redirects to home page
+@action('matching')
+def tail():
+    redirect(URL(''))
+
+# Note: Matching_id is the ID of the matching for the user, not the global matching ID.
+# Thus, every user should be able to use the url '/matching/1'
+@action('matching/<matching_id:int>')
+@action.uses('matching.html', db, auth.user, session, url_signer)
+def matching(matching_id=None):
+    return dict(matching_id=matching_id)
+
+# This route is whenever the user edits any part of a matching.
+# - Add/Edit/Delete a class
+# - Add/Edit/Delete a professor
+# - Add/Edit/Delete a match
+@action('matching/<matching_id:int>', method=['POST'])
+@action.uses(db, auth.user, session, url_signer.verify())
+def edit_matching(matching_id=None):
+    redirect(URL(f'matching/{matching_id}'))
+
+# This route is whenever the user deletes a matching.
+@action('matching/<matching_id:int>', method=['DELETE'])
+@action.uses(db, auth.user, session, url_signer.verify())
+def delete_matching(matching_id=None):
+    redirect(URL(f'matching/{matching_id}'))

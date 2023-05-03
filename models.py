@@ -17,29 +17,66 @@ def get_time():
     return datetime.datetime.utcnow()
 
 
-### Define your table below
-#
-# db.define_table('thing', Field('name'))
-#
-## always commit your models to avoid problems later
+# This table stores the settings of all users.
+# For example, suppose user 'alice' has matchings corresponding to the 1st, 4th, and 6th entry in the matchings table.
+# Then her 'matching_ids' should be [1,4,6].
+db.define_table('settings',
+                Field('user_id', 'reference auth_user', default=get_user_id, writable=False),
+                Field('matchings', 'list:integer', default=[])
+                )
 
-db.define_table('poker',
-                Field('secret'),
-                Field('content', 'text'),
-                Field('number_of_days', 'integer')
-)
+# To get classes/professors/matches for a matching:
+#       my_matching = db(db.matchings.id == <matching id>).select().first()
+#       my_classes = my_matching.classes.select()
+#       my_professors = my_matching.professors.select()
+#       my_matches = my_matching.matches.select()
 
-db.define_table('pets',
-                Field('species', requires=IS_IN_SET(['Cat', 'Dog'])),
-                Field('number_of_paws', 'integer', default=4),
-                Field('description', 'text'),
-                Field('created_on', 'datetime', default=get_time),
-                Field('created_by_email', default=get_user_email), # We set default as a function
-                # If the user ID was deleted from the auth_user table, the pet in this table should not be deleted
-                Field('created_by_id', "reference auth_user", default=get_user_id, ondelete='SET NULL'),
-)
+# This table stores the matchings of all users.
+# Note one user can create multiple matchings.
+db.define_table('matchings',
+                Field('user_id', 'reference auth_user', default=get_user_id, writable=False),
+                Field('name', default=''),
+                Field('description', default=''),
+                Field('created_on', default=get_time, readable=False, writable=False)
+                )
 
-db.pets.created_on.readable = False
-db.pets.created_on.writable = False
+# This table stores all classes of all matchings of all users.
+db.define_table('classes',
+                Field('matching_id', 'reference matchings', writable=False), # ID of the matching the class belongs to
+                Field('name', default='', unique=True, requires=IS_NOT_EMPTY()),
+                Field('fall', 'integer', default=0, requires=IS_INT_IN_RANGE(0, 100)),
+                Field('winter', 'integer', default=0, requires=IS_INT_IN_RANGE(0, 100)),
+                Field('spring', 'integer', default=0, requires=IS_INT_IN_RANGE(0, 100)),
+                Field('summer', 'integer', default=0, requires=IS_INT_IN_RANGE(0, 100)),
+                Field('link', default=''),
+                Field('description', default=''),
+                Field('created_on', 'datetime', default=get_time, readable=False, writable=False)
+                )
+
+# This table stores all professors of all matchings of all users.
+db.define_table('professors',
+                Field('matching_id', 'reference matchings', writable=False), # ID of the matching the professor belongs to
+                Field('name', default='', unique=True, requires=IS_NOT_EMPTY()),
+                Field('fall', 'list:string', default=[]), # List of classes the professor may teach in the fall
+                Field('winter', 'list:string', default=[]),
+                Field('spring', 'list:string', default=[]),
+                Field('summer', 'list:string', default=[]),
+                Field('link', default=''),
+                Field('created_on', 'datetime', default=get_time, readable=False, writable=False)
+                )
+
+# This table stores all class/professor/quarter matches of all matchings of all users.
+db.define_table('matches',
+                Field('matching_id', 'reference matchings', writable=False), # ID of the matching this belongs to
+                Field('Class', default='', requires=IS_NOT_EMPTY()), # 'class' is a reserved fieldname
+                Field('Professor', default='', requires=IS_NOT_EMPTY()),
+                Field('Quarter', default='', requires=IS_IN_SET(['fall', 'winter', 'summer', 'spring'])),
+                Field('created_on', 'datetime', default=get_time, readable=False, writable=False)
+                )
+
+db.matchings.id.writable = False
+db.classes.id.writable = False
+db.professors.id.writable = False
+db.matches.id.writable = False
 
 db.commit()
