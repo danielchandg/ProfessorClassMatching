@@ -22,14 +22,8 @@ def get_time():
 # Then her 'matching_ids' should be [1,4,6].
 db.define_table('settings',
                 Field('user_id', 'reference auth_user', default=get_user_id, writable=False),
-                Field('matchings', 'list:integer', default=[])
+                Field('matching_ids', 'list:integer', default=[])
                 )
-
-# To get classes/professors/matches for a matching:
-#       my_matching = db(db.matchings.id == <matching id>).select().first()
-#       my_classes = my_matching.classes.select()
-#       my_professors = my_matching.professors.select()
-#       my_matches = my_matching.matches.select()
 
 # This table stores the matchings of all users.
 # Note one user can create multiple matchings.
@@ -37,6 +31,7 @@ db.define_table('matchings',
                 Field('user_id', 'reference auth_user', default=get_user_id, writable=False),
                 Field('name', default=''),
                 Field('description', default=''),
+                # Field('quarters', 'list:string', default=['fall', 'winter', 'spring', 'summer']),
                 Field('created_on', default=get_time, readable=False, writable=False)
                 )
 
@@ -74,9 +69,9 @@ db.define_table('matches',
                 Field('created_on', 'datetime', default=get_time, readable=False, writable=False)
                 )
 
-db.matchings.id.writable = False
-db.classes.id.writable = False
-db.professors.id.writable = False
-db.matches.id.writable = False
+db.matchings.id.readable = db.matchings.id.writable = False
+db.classes.id.readable = db.classes.id.writable = False
+db.professors.id.readable = db.professors.id.writable = False
+db.matches.id.readable = db.matches.id.writable = False
 
 db.commit()
