@@ -28,48 +28,73 @@ Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app w
 from py4web import action, request, abort, redirect, URL
 from py4web.utils.form import Form, FormStyleBulma
 from py4web.utils.url_signer import URLSigner
-from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash
-from .models import get_user_email
+from .common import db, session, Field, T, cache, auth, logger, authenticated, unauthenticated, flash
+from .models import get_user_id
+from pydal.validators import *
 
 url_signer = URLSigner(session)
 
 @action('index', method=['GET', 'POST'])
 @action.uses('index.html', db, auth.user, session, url_signer)
 def index():
-    # If user is not logged in, should redirect to login page.
-    # Otherwise, should be the home page for the user.
-    # Here, the user can:
-    # 1) Create a new matching
-    # 2) Select a previously created matching
-    # 3) Delete a matching
+    my_settings = db(db.settings.user_id == get_user_id()).select().first()
+    if my_settings is None:
+        db.settings.insert()
+        my_settings = db(db.settings.user_id == get_user_id()).select().first()
+        assert my_settings is not None
 
-    # TODO: Change formstyle to something customized
-    # TODO: Change form name to default as 'Matching 1', 'Matching 2', etc.
-    form = Form(db.matchings, csrf_session=session, formstyle=FormStyleBulma)
+    my_matchings = db(db.matchings.user_id == get_user_id()).select()
+    MATCHINGS = []
+    for matching in my_matchings:
+        matching.num_classes = matching.classes.count()
+        matching.num_professors = matching.professors.count()
+        matching.num_matches = matching.matches.count()
+        MATCHINGS.append(matching)
 
-    if form.accepted:
-        # TODO: Use form.vars['id'] to update db.settings
-        # Should redirect to '/matching/<form.vars['id']> so user can immediately start adding classes/professors
-        pass
-
-    elif form.errors:
-        # TODO: Display error message
-        pass
+    my_names = [matching.name for matching in my_matchings]
+    default_id = 1
+    while True:
+        if f'Matching {default_id}' not in my_names:
+            break
+        default_id += 1
     
-    # This dict() should contain all matchings for this user as well
-    return dict(form=form)
+    def is_name_unique(form):
+        if form.vars['Name'] in my_names:
+            form.errors['Name'] = T('Name must be unique')
 
-# The url '/matching' for now just redirects to home page
-@action('matching')
-def tail():
-    redirect(URL(''))
+    form = Form([Field('Name', default=f'Matching {default_id}', required=True),
+                 Field('Description')],
+                 deletable=False,
+                 dbio=False,
+                 validation=is_name_unique,
+                 csrf_session=session,
+                 formstyle=FormStyleBulma)
+                
+    if form.accepted:
+        matching_id = db.matchings.insert(name=form.vars['Name'], description=form.vars['Description'])
+        my_settings.matching_ids = my_settings.matching_ids + [matching_id]
+        my_settings.update_record()
+        my_id = len(my_settings.matching_ids)
+        redirect(URL(f'matching/{my_id}'))
+    
+    return dict(matchings=MATCHINGS, form=form)
 
-# Note: Matching_id is the ID of the matching for the user, not the global matching ID.
+# Note: my_id is the ID of the matching for the user, not the global matching ID.
 # Thus, every user should be able to use the url '/matching/1'
-@action('matching/<matching_id:int>')
+@action('matching/<my_id:int>')
 @action.uses('matching.html', db, auth.user, session, url_signer)
-def matching(matching_id=None):
-    return dict(matching_id=matching_id)
+def matching(my_id=None):
+    assert my_id is not None
+    my_settings = db(db.settings.user_id == get_user_id()).select().first()
+    assert my_settings is not None
+    assert 1 <= my_id and my_id <= len(my_settings.matching_ids)
+    matching_id = my_settings.matching_ids[my_id - 1]
+    my_matching = db.matchings[matching_id]
+
+
+
+    assert my_matching.user_id == get_user_id()
+    return dict(my_id=my_id, matching_id=matching_id)
 
 # This route is whenever the user edits any part of a matching.
 # - Add/Edit/Delete a class

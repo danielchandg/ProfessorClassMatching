@@ -1,6 +1,15 @@
 [[extend 'layout.html']]
 
 <div class="section">
+   <h1>Current matchings</h1>
+   [[ for M in matchings: ]]
+      <h2>[[ =M.name ]]</h2>
+      <p>[[ =M.description ]]</p>
+      <p>[[ =M.num_classes ]] classes</p>
+      <p>[[ =M.num_professors ]] professors</p>
+      <p>[[ =M.num_matches ]] matches</p>
+      <p>Created on [[ =M.created_on ]]</p>
+   [[pass]]
    <h1>Add a new matching</h1>
    [[=form]]
 </div>
