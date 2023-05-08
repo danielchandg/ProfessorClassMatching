@@ -94,7 +94,7 @@ def delete_matching(my_id=None):
 
 # Note: my_id is the ID of the matching for the user, not the global matching ID.
 # Thus, every user should be able to use the url '/matching/1'
-@action('matching/<my_id:int>')
+@action('matching/<my_id:int>', method=['GET'])
 @action.uses('matching.html', db, auth.user, session, url_signer)
 def matching(my_id=None):
     assert my_id is not None
@@ -158,21 +158,35 @@ def delete_professor(my_id=None, professor_id=None):
 def add_match(my_id=None):
     return dict()
 
-# Left off
 # This route is for editing a match of class/professor/quarter
 # Note: my_id is the ID of the matching for the user, not the global matching ID.
+@action('matching/<my_id:int>/matches/<match_id:int>', method=['GET', 'POST'])
+@action.uses('edit_match.html', db, auth.user, session, url_signer)
+def edit_match(my_id=None, match_id=None):
+    return dict()
 
-# This route is whenever the user edits any part of a matching.
-# - Add/Edit/Delete a class
-# - Add/Edit/Delete a professor
-# - Add/Edit/Delete a match
-@action('matching/<matching_id:int>', method=['POST'])
+# This route is for deleting a match of class/professor/quarter
+# Note: my_id is the ID of the matching for the user, not the global matching ID.
+@action('matching/<my_id:int>/matches/<match_id:int>', method=['DELETE'])
 @action.uses(db, auth.user, session, url_signer.verify())
-def edit_matching(matching_id=None):
-    redirect(URL(f'matching/{matching_id}'))
+def delete_match(my_id=None, match_id=None):
+    return dict()
 
-# This route is whenever the user deletes a matching.
-@action('matching/<matching_id:int>', method=['DELETE'])
-@action.uses(db, auth.user, session, url_signer.verify())
-def delete_matching(matching_id=None):
-    redirect(URL(f'matching/{matching_id}'))
+
+
+# I think this code is not necessary. Daniel said it was old code.
+
+# # This route is whenever the user edits any part of a matching.
+# # - Add/Edit/Delete a class
+# # - Add/Edit/Delete a professor
+# # - Add/Edit/Delete a match
+# @action('matching/<matching_id:int>', method=['POST'])
+# @action.uses(db, auth.user, session, url_signer.verify())
+# def edit_matching(matching_id=None):
+#     redirect(URL(f'matching/{matching_id}'))
+
+# # This route is whenever the user deletes a matching.
+# @action('matching/<matching_id:int>', method=['DELETE'])
+# @action.uses(db, auth.user, session, url_signer.verify())
+# def delete_matching(matching_id=None):
+#     redirect(URL(f'matching/{matching_id}'))
