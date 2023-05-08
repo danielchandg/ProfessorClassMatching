@@ -79,6 +79,19 @@ def index():
     
     return dict(matchings=MATCHINGS, form=form)
 
+# This route is for inserting a new matching
+@action('index/matching', method=['GET', 'POST'])
+@action.uses('add_matching.html', db, auth.user, session, url_signer)
+def add_matching():
+    return dict()
+
+# This route is for deleting a matching
+# Note: my_id is the ID of the matching for the user, not the global matching ID.
+@action('index/<my_id:int>', method=['DELETE'])
+@action.uses(db, auth.user, session, url_signer.verify())
+def delete_matching(my_id=None):
+    return dict()
+
 # Note: my_id is the ID of the matching for the user, not the global matching ID.
 # Thus, every user should be able to use the url '/matching/1'
 @action('matching/<my_id:int>')
@@ -95,6 +108,21 @@ def matching(my_id=None):
 
     assert my_matching.user_id == get_user_id()
     return dict(my_id=my_id, matching_id=matching_id)
+
+# This route is for adding a class
+# Note: my_id is the ID of the matching for the user, not the global matching ID.
+@action('matching/<my_id:int>/class', method=['GET', 'POST'])
+@action.uses('add_class.html', db, auth.user, session, url_signer)
+def add_class(my_id=None):
+    return dict()
+
+# LEFT OFF
+# This route is for adding a class
+# Note: my_id is the ID of the matching for the user, not the global matching ID.
+@action('matching/<my_id:int>/class', method=['GET', 'POST'])
+@action.uses('add_class.html', db, auth.user, session, url_signer)
+def add_class(my_id=None):
+    return dict()
 
 # This route is whenever the user edits any part of a matching.
 # - Add/Edit/Delete a class
