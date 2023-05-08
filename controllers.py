@@ -116,13 +116,51 @@ def matching(my_id=None):
 def add_class(my_id=None):
     return dict()
 
-# LEFT OFF
-# This route is for adding a class
+# This route is for editing a class
 # Note: my_id is the ID of the matching for the user, not the global matching ID.
-@action('matching/<my_id:int>/class', method=['GET', 'POST'])
-@action.uses('add_class.html', db, auth.user, session, url_signer)
-def add_class(my_id=None):
+@action('matching/<my_id:int>/class/<class_id:int>', method=['GET', 'POST'])
+@action.uses('edit_class.html', db, auth.user, session, url_signer)
+def edit_class(my_id=None, class_id=None):
     return dict()
+
+# This route is for deleting a class
+# Note: my_id is the ID of the matching for the user, not the global matching ID.
+@action('matching/<my_id:int>/class/<class_id:int>', method=['DELETE'])
+@action.uses(db, auth.user, session, url_signer.verify())
+def delete_class(my_id=None, class_id=None):
+    return dict()
+
+# This route is for adding a professor
+# Note: my_id is the ID of the matching for the user, not the global matching ID.
+@action('matching/<my_id:int>/professor', method=['GET', 'POST'])
+@action.uses('add_professor.html', db, auth.user, session, url_signer)
+def add_professor(my_id=None):
+    return dict()
+
+# This route is for editing a professor
+# Note: my_id is the ID of the matching for the user, not the global matching ID.
+@action('matching/<my_id:int>/professor/<professor_id:int>', method=['GET', 'POST'])
+@action.uses('edit_professor.html', db, auth.user, session, url_signer)
+def edit_professor(my_id=None, professor_id=None):
+    return dict()
+
+# This route is for deleting a professor
+# Note: my_id is the ID of the matching for the user, not the global matching ID.
+@action('matching/<my_id:int>/professor/<professor_id:int>', method=['DELETE'])
+@action.uses(db, auth.user, session, url_signer.verify())
+def delete_professor(my_id=None, professor_id=None):
+    return dict()
+
+# This route is for adding a match of class/professor/quarter
+# Note: my_id is the ID of the matching for the user, not the global matching ID.
+@action('matching/<my_id:int>/matches', method=['GET', 'POST'])
+@action.uses('add_match.html', db, auth.user, session, url_signer)
+def add_match(my_id=None):
+    return dict()
+
+# Left off
+# This route is for editing a match of class/professor/quarter
+# Note: my_id is the ID of the matching for the user, not the global matching ID.
 
 # This route is whenever the user edits any part of a matching.
 # - Add/Edit/Delete a class
