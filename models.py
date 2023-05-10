@@ -32,7 +32,7 @@ db.define_table('matchings',
                 Field('name'),
                 Field('description'),
                 # Field('quarters', 'list:string', default=['fall', 'winter', 'spring', 'summer']),
-                Field('created_on', 'datetime', default=get_time)
+                Field('created_on', 'datetime', default=get_time),
                 )
 
 # This table stores all classes of all matchings of all users.

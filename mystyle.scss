@@ -25,9 +25,6 @@ $link: $cerulean;
 $info: $midnight_green;
 $success: $orange;
 
-$widescreen-enabled: false;
-$fullhd-enabled: false;
-
 // Update some of Bulma's component variables
 $body-background-color: $seasalt;
 $control-border-width: 2px;
@@ -44,3 +41,4 @@ $input-shadow: none;
 @import "bulma/sass/components/navbar.sass";
 @import "bulma/sass/layout/hero.sass";
 @import "bulma/sass/layout/section.sass";
+@import "bulma/sass/elements/table.sass";

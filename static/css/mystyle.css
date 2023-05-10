@@ -58,7 +58,7 @@ fieldset[disabled] .file-name, fieldset[disabled] .select select, .select fields
   width: 0.625em;
 }
 
-.title:not(:last-child),
+.table-container:not(:last-child), .table:not(:last-child), .title:not(:last-child),
 .subtitle:not(:last-child) {
   margin-bottom: 1.5rem;
 }
@@ -1470,6 +1470,26 @@ table th {
 @media screen and (min-width: 1024px) {
   .container {
     max-width: 960px;
+  }
+}
+@media screen and (max-width: 1215px) {
+  .container.is-widescreen:not(.is-max-desktop) {
+    max-width: 1152px;
+  }
+}
+@media screen and (max-width: 1407px) {
+  .container.is-fullhd:not(.is-max-desktop):not(.is-max-widescreen) {
+    max-width: 1344px;
+  }
+}
+@media screen and (min-width: 1216px) {
+  .container:not(.is-max-desktop) {
+    max-width: 1152px;
+  }
+}
+@media screen and (min-width: 1408px) {
+  .container:not(.is-max-desktop):not(.is-max-widescreen) {
+    max-width: 1344px;
   }
 }
 
@@ -4341,4 +4361,172 @@ a.navbar-item:focus, a.navbar-item:focus-within, a.navbar-item:hover, a.navbar-i
   .section.is-large {
     padding: 18rem 6rem;
   }
+}
+
+.table {
+  background-color: hsl(0, 0%, 100%);
+  color: hsl(0, 0%, 21%);
+}
+.table td,
+.table th {
+  border: 1px solid hsl(0, 0%, 86%);
+  border-width: 0 0 1px;
+  padding: 0.5em 0.75em;
+  vertical-align: top;
+}
+.table td.is-white,
+.table th.is-white {
+  background-color: hsl(0, 0%, 100%);
+  border-color: hsl(0, 0%, 100%);
+  color: hsl(0, 0%, 4%);
+}
+.table td.is-black,
+.table th.is-black {
+  background-color: hsl(0, 0%, 4%);
+  border-color: hsl(0, 0%, 4%);
+  color: hsl(0, 0%, 100%);
+}
+.table td.is-light,
+.table th.is-light {
+  background-color: hsl(0, 0%, 96%);
+  border-color: hsl(0, 0%, 96%);
+  color: rgba(0, 0, 0, 0.7);
+}
+.table td.is-dark,
+.table th.is-dark {
+  background-color: hsl(0, 0%, 21%);
+  border-color: hsl(0, 0%, 21%);
+  color: #fff;
+}
+.table td.is-primary,
+.table th.is-primary {
+  background-color: #119DA4;
+  border-color: #119DA4;
+  color: #fff;
+}
+.table td.is-link,
+.table th.is-link {
+  background-color: #0C7489;
+  border-color: #0C7489;
+  color: #fff;
+}
+.table td.is-info,
+.table th.is-info {
+  background-color: #13505B;
+  border-color: #13505B;
+  color: #fff;
+}
+.table td.is-success,
+.table th.is-success {
+  background-color: #E53D00;
+  border-color: #E53D00;
+  color: #fff;
+}
+.table td.is-warning,
+.table th.is-warning {
+  background-color: hsl(44, 100%, 77%);
+  border-color: hsl(44, 100%, 77%);
+  color: rgba(0, 0, 0, 0.7);
+}
+.table td.is-danger,
+.table th.is-danger {
+  background-color: hsl(348, 86%, 61%);
+  border-color: hsl(348, 86%, 61%);
+  color: #fff;
+}
+.table td.is-narrow,
+.table th.is-narrow {
+  white-space: nowrap;
+  width: 1%;
+}
+.table td.is-selected,
+.table th.is-selected {
+  background-color: #119DA4;
+  color: #fff;
+}
+.table td.is-selected a,
+.table td.is-selected strong,
+.table th.is-selected a,
+.table th.is-selected strong {
+  color: currentColor;
+}
+.table td.is-vcentered,
+.table th.is-vcentered {
+  vertical-align: middle;
+}
+.table th {
+  color: hsl(0, 0%, 21%);
+}
+.table th:not([align]) {
+  text-align: left;
+}
+.table tr.is-selected {
+  background-color: #119DA4;
+  color: #fff;
+}
+.table tr.is-selected a,
+.table tr.is-selected strong {
+  color: currentColor;
+}
+.table tr.is-selected td,
+.table tr.is-selected th {
+  border-color: #fff;
+  color: currentColor;
+}
+.table thead {
+  background-color: transparent;
+}
+.table thead td,
+.table thead th {
+  border-width: 0 0 2px;
+  color: hsl(0, 0%, 21%);
+}
+.table tfoot {
+  background-color: transparent;
+}
+.table tfoot td,
+.table tfoot th {
+  border-width: 2px 0 0;
+  color: hsl(0, 0%, 21%);
+}
+.table tbody {
+  background-color: transparent;
+}
+.table tbody tr:last-child td,
+.table tbody tr:last-child th {
+  border-bottom-width: 0;
+}
+.table.is-bordered td,
+.table.is-bordered th {
+  border-width: 1px;
+}
+.table.is-bordered tr:last-child td,
+.table.is-bordered tr:last-child th {
+  border-bottom-width: 1px;
+}
+.table.is-fullwidth {
+  width: 100%;
+}
+.table.is-hoverable tbody tr:not(.is-selected):hover {
+  background-color: hsl(0, 0%, 98%);
+}
+.table.is-hoverable.is-striped tbody tr:not(.is-selected):hover {
+  background-color: hsl(0, 0%, 98%);
+}
+.table.is-hoverable.is-striped tbody tr:not(.is-selected):hover:nth-child(even) {
+  background-color: hsl(0, 0%, 96%);
+}
+.table.is-narrow td,
+.table.is-narrow th {
+  padding: 0.25em 0.5em;
+}
+.table.is-striped tbody tr:not(.is-selected):nth-child(even) {
+  background-color: hsl(0, 0%, 98%);
+}
+
+.table-container {
+  -webkit-overflow-scrolling: touch;
+  overflow: auto;
+  overflow-y: hidden;
+  max-width: 100%;
 }

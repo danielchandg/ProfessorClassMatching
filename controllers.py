@@ -25,76 +25,72 @@ session, db, T, auth, and tempates are examples of Fixtures.
 Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app will result in undefined behavior
 """
 
-from py4web import action, request, abort, redirect, URL
-from py4web.utils.form import Form, FormStyleBulma
+from py4web import action, request, abort, URL
 from py4web.utils.url_signer import URLSigner
 from .common import db, session, Field, T, cache, auth, logger, authenticated, unauthenticated, flash
-from .models import get_user_id
+from .models import get_user_id, get_time
 from pydal.validators import *
 
 url_signer = URLSigner(session)
 
-@action('index', method=['GET', 'POST'])
-@action.uses('index.html', db, auth.user, session, url_signer)
+# Returns the paths to the other controller routes that can be accessed from the home page
+@action('index', method='GET')
+@action.uses('index.html', url_signer)
 def index():
+    return dict(
+        load_matchings_url = URL('load_matchings', signer=url_signer),
+        add_matching_url = URL('add_matching', signer=url_signer),
+        delete_matching_url = URL('delete_matching', signer=url_signer)
+    )
+
+# Loads the user's matchings to be displayed on home page
+@action('load_matchings')
+@action.uses(url_signer.verify(), db)
+def load_matchings():
     my_settings = db(db.settings.user_id == get_user_id()).select().first()
     if my_settings is None:
-        db.settings.insert()
-        my_settings = db(db.settings.user_id == get_user_id()).select().first()
-        assert my_settings is not None
+        db.settings.insert() # Ensure the current user has an entry in db.settings
+    matchings = db(db.matchings.user_id == get_user_id()).select()
+    for m in matchings:
+        m['num_classes'] = m.classes.count()
+        m['num_professors'] = m.professors.count()
+        m['num_matches'] = m.matches.count()
+    return dict(matchings=matchings)
 
-    my_matchings = db(db.matchings.user_id == get_user_id()).select()
-    MATCHINGS = []
-    for matching in my_matchings:
-        matching.num_classes = matching.classes.count()
-        matching.num_professors = matching.professors.count()
-        matching.num_matches = matching.matches.count()
-        MATCHINGS.append(matching)
-
-    my_names = [matching.name for matching in my_matchings]
-    default_id = 1
-    while True:
-        if f'Matching {default_id}' not in my_names:
-            break
-        default_id += 1
-    
-    def is_name_unique(form):
-        if form.vars['Name'] in my_names:
-            form.errors['Name'] = T('Name must be unique')
-
-    form = Form([Field('Name', default=f'Matching {default_id}', required=True),
-                 Field('Description')],
-                 deletable=False,
-                 dbio=False,
-                 validation=is_name_unique,
-                 csrf_session=session,
-                 formstyle=FormStyleBulma)
-                
-    if form.accepted:
-        matching_id = db.matchings.insert(name=form.vars['Name'], description=form.vars['Description'])
-        my_settings.matching_ids = my_settings.matching_ids + [matching_id]
-        my_settings.update_record()
-        my_id = len(my_settings.matching_ids)
-        redirect(URL(f'matching/{my_id}'))
-    
-    return dict(matchings=MATCHINGS, form=form)
-
-# This route is for inserting a new matching
-@action('index/matching', method=['GET', 'POST'])
-@action.uses('add_matching.html', db, auth.user, session, url_signer)
+# This route is for adding a matching
+@action('add_matching', method='POST')
+@action.uses(url_signer.verify(), db)
 def add_matching():
-    return dict()
+    id = db.matchings.insert(
+        name = request.json.get('name'),
+        description = request.json.get('description')
+    )
+    my_settings = db(db.settings.user_id == get_user_id()).select().first()
+    assert my_settings is not None
+    my_settings.matching_ids = my_settings.matching_ids + [id]
+    my_settings.update_record()
+    print(f'Added matching {request.json.get("name")} with ID {id}')
+    return dict(id=id, date=get_time())
 
 # This route is for deleting a matching
-# Note: my_id is the ID of the matching for the user, not the global matching ID.
-@action('index/<my_id:int>', method=['DELETE'])
-@action.uses(db, auth.user, session, url_signer.verify())
-def delete_matching(my_id=None):
-    return dict()
+@action('delete_matching', method='POST')
+@action.uses(url_signer.verify(), db)
+def delete_matching():
+    id = request.json.get('id') # Database ID of the matching
+    assert id is not None
+    db(db.matchings.id == id).delete()
+    my_settings = db(db.settings.user_id == get_user_id()).select().first()
+    assert my_settings is not None
+    my_settings.matching_ids.remove(id)
+    my_settings.update_record()
+    return 'ok'
 
+# TODO
 # Note: my_id is the ID of the matching for the user, not the global matching ID.
 # Thus, every user should be able to use the url '/matching/1'
-@action('matching/<my_id:int>', method=['GET'])
+# This route should return the paths to other controller routes, such as:
+# add/edit/delete class, add/edit/delete professor, add/edit/delete match, edit this matching
+@action('matching/<my_id:int>')
 @action.uses('matching.html', db, auth.user, session, url_signer)
 def matching(my_id=None):
     assert my_id is not None
@@ -103,90 +99,59 @@ def matching(my_id=None):
     assert 1 <= my_id and my_id <= len(my_settings.matching_ids)
     matching_id = my_settings.matching_ids[my_id - 1]
     my_matching = db.matchings[matching_id]
-
-
-
     assert my_matching.user_id == get_user_id()
     return dict(my_id=my_id, matching_id=matching_id)
 
 # This route is for adding a class
-# Note: my_id is the ID of the matching for the user, not the global matching ID.
-@action('matching/<my_id:int>/class', method=['GET', 'POST'])
-@action.uses('add_class.html', db, auth.user, session, url_signer)
-def add_class(my_id=None):
+@action('add_class', method='POST')
+@action.uses(url_signer.verify(), db)
+def add_class():
     return dict()
 
 # This route is for editing a class
-# Note: my_id is the ID of the matching for the user, not the global matching ID.
-@action('matching/<my_id:int>/class/<class_id:int>', method=['GET', 'POST'])
-@action.uses('edit_class.html', db, auth.user, session, url_signer)
-def edit_class(my_id=None, class_id=None):
+@action('edit_class', method='POST')
+@action.uses(url_signer.verify(), db)
+def edit_class():
     return dict()
 
 # This route is for deleting a class
-# Note: my_id is the ID of the matching for the user, not the global matching ID.
-@action('matching/<my_id:int>/class/<class_id:int>', method=['DELETE'])
-@action.uses(db, auth.user, session, url_signer.verify())
-def delete_class(my_id=None, class_id=None):
-    return dict()
+@action('delete_class', method='POST')
+@action.uses(url_signer.verify(), db)
+def delete_class():
+    return 'ok'
 
 # This route is for adding a professor
-# Note: my_id is the ID of the matching for the user, not the global matching ID.
-@action('matching/<my_id:int>/professor', method=['GET', 'POST'])
-@action.uses('add_professor.html', db, auth.user, session, url_signer)
-def add_professor(my_id=None):
+@action('add_professor', method='POST')
+@action.uses(url_signer.verify(), db)
+def add_professor():
     return dict()
 
 # This route is for editing a professor
-# Note: my_id is the ID of the matching for the user, not the global matching ID.
-@action('matching/<my_id:int>/professor/<professor_id:int>', method=['GET', 'POST'])
-@action.uses('edit_professor.html', db, auth.user, session, url_signer)
-def edit_professor(my_id=None, professor_id=None):
+@action('edit_professor', method='POST')
+@action.uses(url_signer.verify(), db)
+def edit_professor():
     return dict()
 
 # This route is for deleting a professor
-# Note: my_id is the ID of the matching for the user, not the global matching ID.
-@action('matching/<my_id:int>/professor/<professor_id:int>', method=['DELETE'])
-@action.uses(db, auth.user, session, url_signer.verify())
-def delete_professor(my_id=None, professor_id=None):
+@action('delete_professor', method='POST')
+@action.uses(url_signer.verify(), db)
+def delete_professor():
     return dict()
 
 # This route is for adding a match of class/professor/quarter
-# Note: my_id is the ID of the matching for the user, not the global matching ID.
-@action('matching/<my_id:int>/matches', method=['GET', 'POST'])
-@action.uses('add_match.html', db, auth.user, session, url_signer)
-def add_match(my_id=None):
+@action('add_match', method='POST')
+@action.uses(url_signer.verify(), db)
+def add_match():
     return dict()
 
 # This route is for editing a match of class/professor/quarter
-# Note: my_id is the ID of the matching for the user, not the global matching ID.
-@action('matching/<my_id:int>/matches/<match_id:int>', method=['GET', 'POST'])
-@action.uses('edit_match.html', db, auth.user, session, url_signer)
-def edit_match(my_id=None, match_id=None):
+@action('edit_match', method='POST')
+@action.uses(url_signer.verify(), db)
+def edit_match():
     return dict()
 
 # This route is for deleting a match of class/professor/quarter
-# Note: my_id is the ID of the matching for the user, not the global matching ID.
-@action('matching/<my_id:int>/matches/<match_id:int>', method=['DELETE'])
-@action.uses(db, auth.user, session, url_signer.verify())
-def delete_match(my_id=None, match_id=None):
+@action('delete_match', method='POST')
+@action.uses(url_signer.verify(), db)
+def delete_match():
     return dict()
-
-
-
-# I think this code is not necessary. Daniel said it was old code.
-
-# # This route is whenever the user edits any part of a matching.
-# # - Add/Edit/Delete a class
-# # - Add/Edit/Delete a professor
-# # - Add/Edit/Delete a match
-# @action('matching/<matching_id:int>', method=['POST'])
-# @action.uses(db, auth.user, session, url_signer.verify())
-# def edit_matching(matching_id=None):
-#     redirect(URL(f'matching/{matching_id}'))
-
-# # This route is whenever the user deletes a matching.
-# @action('matching/<matching_id:int>', method=['DELETE'])
-# @action.uses(db, auth.user, session, url_signer.verify())
-# def delete_matching(matching_id=None):
-#     redirect(URL(f'matching/{matching_id}'))
