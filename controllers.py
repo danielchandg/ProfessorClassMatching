@@ -30,12 +30,13 @@ from py4web.utils.url_signer import URLSigner
 from .common import db, session, Field, T, cache, auth, logger, authenticated, unauthenticated, flash
 from .models import get_user_id, get_time
 from pydal.validators import *
+import json
 
 url_signer = URLSigner(session)
 
 # Returns the paths to the other controller routes that can be accessed from the home page
 @action('index', method='GET')
-@action.uses('index.html', url_signer)
+@action.uses('index.html', url_signer, auth.user)
 def index():
     return dict(
         load_matchings_url = URL('load_matchings', signer=url_signer),
@@ -45,45 +46,61 @@ def index():
 
 # Loads the user's matchings to be displayed on home page
 @action('load_matchings')
-@action.uses(url_signer.verify(), db)
+@action.uses(url_signer.verify(), db, auth.user)
 def load_matchings():
+    # db(db.matchings).delete()
     my_settings = db(db.settings.user_id == get_user_id()).select().first()
     if my_settings is None:
         db.settings.insert() # Ensure the current user has an entry in db.settings
+        my_settings = db(db.settings.user_id == get_user_id()).select().first()
     matchings = db(db.matchings.user_id == get_user_id()).select()
+    matching_ids = []
     for m in matchings:
-        m['num_classes'] = m.classes.count()
-        m['num_professors'] = m.professors.count()
-        m['num_matches'] = m.matches.count()
+        def f(list_name, len_name):
+            m[len_name] = len(m[list_name])
+            m.pop(list_name)
+        f('class_ids', 'num_classes')
+        f('professor_ids', 'num_professors')
+        f('match_ids', 'num_matches')
+        m.created_on = m.time_created
+        m.pop('time_created')
+        matching_ids.append(m.id)
+    
+    # Note: This my_settings update can possibly be removed later on
+    my_settings.matching_ids = matching_ids
+    my_settings.update_record()
+
     return dict(matchings=matchings)
 
 # This route is for adding a matching
 @action('add_matching', method='POST')
-@action.uses(url_signer.verify(), db)
+@action.uses(url_signer.verify(), db, auth.user)
 def add_matching():
     id = db.matchings.insert(
         name = request.json.get('name'),
-        description = request.json.get('description')
+        description = request.json.get('description'),
+        num_quarters = request.json.get('num_quarters'),
+        quarter_names = request.json.get('quarter_names'),
+        time_created = request.json.get('created_on')
     )
     my_settings = db(db.settings.user_id == get_user_id()).select().first()
     assert my_settings is not None
     my_settings.matching_ids = my_settings.matching_ids + [id]
     my_settings.update_record()
-    print(f'Added matching {request.json.get("name")} with ID {id}')
-    return dict(id=id, date=get_time())
+    return f'ok added matching {id}'
 
 # This route is for deleting a matching
 @action('delete_matching', method='POST')
-@action.uses(url_signer.verify(), db)
+@action.uses(url_signer.verify(), db, auth.user)
 def delete_matching():
-    id = request.json.get('id') # Database ID of the matching
-    assert id is not None
-    db(db.matchings.id == id).delete()
+    idx = request.json.get('idx') # User's idx of the matching
     my_settings = db(db.settings.user_id == get_user_id()).select().first()
     assert my_settings is not None
+    id = my_settings.matching_ids[idx]
+    db(db.matchings.id == id).delete()
     my_settings.matching_ids.remove(id)
     my_settings.update_record()
-    return 'ok'
+    return f'ok deleted matching {id}'
 
 # TODO
 # Note: my_id is the ID of the matching for the user, not the global matching ID.
@@ -100,12 +117,43 @@ def matching(my_id=None):
     matching_id = my_settings.matching_ids[my_id - 1]
     my_matching = db.matchings[matching_id]
     assert my_matching.user_id == get_user_id()
-    return dict(my_id=my_id, matching_id=matching_id)
+    return dict(
+        my_id=my_id,
+        matching_id=matching_id,
+        load_my_matching_url=URL('load_my_matching', matching_id, signer=url_signer),
+    )
+
+# Loads the user's matching for their matching page
+@action('load_my_matching/<matching_id:int>')
+@action.uses(url_signer.verify(), db, auth.user)
+def load_my_matching(matching_id=None):
+    assert matching_id is not None
+    my_matching = db.matchings[matching_id]
+    classes = my_matching.classes.select()
+    professors = my_matching.professors.select()
+    matches = my_matching.matches.select()
+    num_quarters = my_matching.num_quarters
+    quarter_names = my_matching.quarter_names
+    class_ids = [c.id for c in classes]
+    professor_ids = [p.id for p in professors]
+    match_ids = [m.id for m in matches]
+    my_matching.class_ids = class_ids
+    my_matching.professor_ids = professor_ids
+    my_matching.match_ids = match_ids
+    my_matching.update_record()
+
+    
+    return dict()
 
 # This route is for adding a class
 @action('add_class', method='POST')
 @action.uses(url_signer.verify(), db)
 def add_class():
+    id = db.matchings.insert(
+        name = request.json.get('name'),
+        description = request.json.get('description'),
+
+    )
     return dict()
 
 # This route is for editing a class

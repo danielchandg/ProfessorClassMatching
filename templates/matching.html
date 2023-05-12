@@ -9,3 +9,12 @@
 <div class="section">
    This is matching [[=my_id]] for you. Globally, this is matching [[=matching_id]]
 </div>
+
+[[block page_scripts]]
+<!-- Loads the index-specific js for Vue -->
+<script>
+   let matching_id = "[[=matching_id]]";
+   let load_my_matching_url = "[[=XML(load_my_matching_url)]]";
+</script>
+<script src="js/index.js"></script>
+[[end]]
