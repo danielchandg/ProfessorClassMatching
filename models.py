@@ -27,20 +27,12 @@ db.define_table('settings',
 
 # This table stores the matchings of all users.
 # Note one user can create multiple matchings.
-# Ex: Suppose 'My Matching' has 2 quarters, 3 classes, 3 professors, and 3 matches.
-    # The classes correspond to the 1st, 4th, and 6th entries in the classes table.
-    # The professors correspond to the 2nd, 5th, and 7th entries in the professors table.
-    # The matches correspond to the 3rd, 6th, and 8th entries in the matches table.
-    # Then, num_quarters = 2, quarter_names = ['Q1', 'Q2'], class_ids = [1,4,6], professor_ids = [2,5,7], match_ids = [3,6,8]
 db.define_table('matchings',
                 Field('user_id', 'reference auth_user', default=get_user_id),
                 Field('name', required=True),
                 Field('description'),
                 Field('num_quarters', 'integer', requires=IS_INT_IN_RANGE(1, 100)), # Number of quarters in this matching
                 Field('quarter_names', 'list:string'), # List of quarter names for this matching
-                Field('class_ids', 'list:integer', default=[]),
-                Field('professor_ids', 'list:integer', default=[]),
-                Field('match_ids', 'list:integer', default=[]),
                 Field('time_created'), # This field is a string served from index.js
                 )
 

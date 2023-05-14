@@ -56,12 +56,9 @@ def load_matchings():
     matchings = db(db.matchings.user_id == get_user_id()).select()
     matching_ids = []
     for m in matchings:
-        def f(list_name, len_name):
-            m[len_name] = len(m[list_name])
-            m.pop(list_name)
-        f('class_ids', 'num_classes')
-        f('professor_ids', 'num_professors')
-        f('match_ids', 'num_matches')
+        m.num_classes = m.classes.count()
+        m.num_professors = m.professors.count()
+        m.num_matches = m.matches.count()
         m.created_on = m.time_created
         m.pop('time_created')
         matching_ids.append(m.id)
@@ -76,6 +73,8 @@ def load_matchings():
 @action('add_matching', method='POST')
 @action.uses(url_signer.verify(), db, auth.user)
 def add_matching():
+    my_settings = db(db.settings.user_id == get_user_id()).select().first()
+    assert my_settings is not None
     id = db.matchings.insert(
         name = request.json.get('name'),
         description = request.json.get('description'),
@@ -83,21 +82,18 @@ def add_matching():
         quarter_names = request.json.get('quarter_names'),
         time_created = request.json.get('created_on')
     )
-    my_settings = db(db.settings.user_id == get_user_id()).select().first()
-    assert my_settings is not None
     my_settings.matching_ids = my_settings.matching_ids + [id]
     my_settings.update_record()
-    return f'ok added matching {id}'
+    return dict(id=id)
 
 # This route is for deleting a matching
 @action('delete_matching', method='POST')
 @action.uses(url_signer.verify(), db, auth.user)
 def delete_matching():
-    idx = request.json.get('idx') # User's idx of the matching
+    id = request.json.get('id') # Database ID
+    db(db.matchings.id == id).delete()
     my_settings = db(db.settings.user_id == get_user_id()).select().first()
     assert my_settings is not None
-    id = my_settings.matching_ids[idx]
-    db(db.matchings.id == id).delete()
     my_settings.matching_ids.remove(id)
     my_settings.update_record()
     return f'ok deleted matching {id}'
@@ -121,6 +117,8 @@ def matching(my_id=None):
         my_id=my_id,
         matching_id=matching_id,
         load_my_matching_url=URL('load_my_matching', matching_id, signer=url_signer),
+        add_class_url = URL('add_class', matching_id, signer=url_signer),
+        delete_class_url = URL('delete_class', matching_id, signer=url_signer)
     )
 
 # Loads the user's matching for their matching page
@@ -129,32 +127,61 @@ def matching(my_id=None):
 def load_my_matching(matching_id=None):
     assert matching_id is not None
     my_matching = db.matchings[matching_id]
-    classes = my_matching.classes.select()
-    professors = my_matching.professors.select()
-    matches = my_matching.matches.select()
+    assert my_matching is not None
+    matching_name = my_matching.name
+    matching_description = my_matching.description
     num_quarters = my_matching.num_quarters
     quarter_names = my_matching.quarter_names
-    class_ids = [c.id for c in classes]
-    professor_ids = [p.id for p in professors]
-    match_ids = [m.id for m in matches]
-    my_matching.class_ids = class_ids
-    my_matching.professor_ids = professor_ids
-    my_matching.match_ids = match_ids
-    my_matching.update_record()
 
+    classes = my_matching.classes.select()
+    for c in classes:
+        if len(c.num_sections) > num_quarters:
+            del c.num_sections[num_quarters:]
+            c.update_record()
+        elif len(c.num_sections) < num_quarters:
+            c.num_sections.extend([0] * (num_quarters - len(c.num_sections)))
+            c.update_record()
+        c.created_on = c.time_created
+        c.pop('time_created')
     
-    return dict()
+    professors = my_matching.professors.select()
+    
+    for p in professors:
+        p.created_on = p.time_created
+        p.pop('time_created')
+    
+    matches = my_matching.matches.select()
+
+    for m in matches:
+        m.created_on = m.time_created
+        m.pop('time_created')
+
+    return dict(
+        matching_name=matching_name,
+        matching_description=matching_description,
+        num_quarters=num_quarters,
+        quarter_names=quarter_names,
+        classes=classes,
+        professors=professors,
+        matches=matches
+    )
 
 # This route is for adding a class
-@action('add_class', method='POST')
-@action.uses(url_signer.verify(), db)
-def add_class():
-    id = db.matchings.insert(
+@action('add_class/<matching_id:int>', method='POST')
+@action.uses(url_signer.verify(), db, auth.user)
+def add_class(matching_id=None):
+    assert matching_id is not None
+    my_matching = db.matchings[matching_id]
+    assert my_matching is not None
+    assert my_matching.user_id == get_user_id()
+    id = db.classes.insert(
         name = request.json.get('name'),
+        matching_id = matching_id,
         description = request.json.get('description'),
-
+        num_sections = request.json.get('num_sections'),
+        time_created = request.json.get('created_on')
     )
-    return dict()
+    return f'ok added class {id}'
 
 # This route is for editing a class
 @action('edit_class', method='POST')
@@ -163,10 +190,14 @@ def edit_class():
     return dict()
 
 # This route is for deleting a class
-@action('delete_class', method='POST')
-@action.uses(url_signer.verify(), db)
-def delete_class():
-    return 'ok'
+@action('delete_class/<matching_id:int>', method='POST')
+@action.uses(url_signer.verify(), db, auth.user)
+def delete_class(matching_id=None):
+    assert matching_id is not None
+    my_matching = db.matchings[matching_id]
+    assert my_matching is not None
+    assert my_matching.user_id == get_user_id()
+    idx = request.json.get('idx') # User's idx of the class
 
 # This route is for adding a professor
 @action('add_professor', method='POST')

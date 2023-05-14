@@ -6,8 +6,8 @@ let init = function (app) {
     matchings: [], // Matchings of the user
     add_matching_name: '', // Name of the matching that the user wants to add
     add_matching_description: '',
-    add_matching_num_quarters: 2, // Number of quarters
-    add_matching_quarter_names: ['fall', 'spring'], // Names of quarters
+    add_matching_num_quarters: 0, // Number of quarters
+    add_matching_quarter_names: [], // Names of quarters
     add_mode: false, // Is the user currently adding a matching?
   };
 
@@ -30,6 +30,7 @@ let init = function (app) {
     const curTime = new Date();
     console.log(`Adding matching ${name}`);
     app.vue.matchings.push({
+      id: -1,
       _idx: app.vue.matchings.length,
       name: name,
       description: description,
@@ -49,15 +50,11 @@ let init = function (app) {
       quarter_names: quarter_names,
       created_on: curTime.toString()
     }).then(function (response) {
-      if(!response.ok) {
-        throw response;
-      }
       console.log(`Added matching ${name}`);
-    }).catch(function (error) {
-      if('status' in error && error.status / 100 === 2) {
-        console.log(`Added matching ${name}`);
-        return;
+      if(!app.update_local_matching(name, response.data.id)) {
+        console.log(`After added matching, unable to add ID ${response.data.id}`);
       }
+    }).catch(function (error) {
       console.log(`Error when adding matching ${name}: ${JSON.stringify(error)}`);
       if(!app.remove_local_matching(name)) {
         console.log(`Error when un-adding matching ${name}, not found`);
@@ -65,12 +62,24 @@ let init = function (app) {
     });
   }
 
+  app.update_local_matching = function (name, id) {
+    for(let i = app.vue.matchings.length - 1; i >= 0; i--) {
+      if(app.vue.matchings[i].name === name && app.vue.matchings[i].id === -1) {
+        app.vue.matchings[i].id = id;
+        return true;
+      }
+    }
+    return false;
+  }
+
   // Given the name of a matching, removes it from app.vue.matchings
   app.remove_local_matching = function (name) {
     for (let i = app.vue.matchings.length - 1; i >= 0; i--) {
       if (app.vue.matchings[i].name === name) {
         app.vue.matchings.splice(i, 1);
-        app.enumerate(app.vue.matchings);
+        for(let j = i; j < app.vue.matchings.length; j++) {
+          app.vue.matchings[j]._idx = j;
+        }
         return true;
       }
     }
@@ -80,8 +89,8 @@ let init = function (app) {
   app.reset_matching_form = function () {
     app.vue.add_matching_name = `Matching ${app.vue.matchings.length + 1}`;
     app.vue.add_matching_description = '';
-    app.vue.add_matching_num_quarters = '';
-    app.vue.add_matching_quarter_names = [];
+    app.vue.add_matching_num_quarters = 2;
+    app.vue.add_matching_quarter_names = ['fall', 'spring'];
   }
 
   app.goto_matching = function (idx) {
@@ -120,11 +129,10 @@ let init = function (app) {
       idx: idx,
       created_on: curTime.toString()
     }).then(function (response) {
-      if(!response.ok) {
-        throw response;
-      }
+      console.log(`Duplicated matching ${name}`);
     }).catch(function (error) {
-      console.log(`Error when duplicating matching ${name}: ${error}`);
+      console.log(`Error when duplicating matching ${name}:`);
+      console.log(error);
       if(!app.remove_local_matching(name + ' copy')) {
         console.log(`Error when un-duplicating matching ${name}, not found`);
       }
@@ -141,6 +149,7 @@ let init = function (app) {
   }
 
   app.delete_matching = function (idx) {
+    const id = app.vue.matchings[idx].id;
     const name = app.vue.matchings[idx].name;
     const description = app.vue.matchings[idx].description;
     const num_classes = app.vue.matchings[idx].num_classes;
@@ -149,24 +158,24 @@ let init = function (app) {
     const num_quarters = app.vue.matchings[idx].num_quarters;
     const quarter_names = app.vue.matchings[idx].quarter_names;
     const created_on = app.vue.matchings[idx].created_on;
+    if(id < 0) {
+      console.log(`Unable to delete matching with id ${id}`);
+      return;
+    }
     if(!app.remove_local_matching(name)){
       console.log(`Error when deleting matching ${name}: Not found`);
       return;
     }
 
     axios.post(delete_matching_url, {
-      idx: idx
+      id: id
     }).then(function (response) {
-      if(!response.ok) {
-        throw response;
-      }
+      console.log(`Deleted matching ${name}`);
     }).catch(function (error) {
-      if('status' in error && error.status / 100 === 2) {
-        console.log(`Deleted matching ${name}`);
-        return;
-      }
-      console.log(`Error when deleting matching ${name}: ${JSON.stringify(error)}`)
+      console.log(`Error when deleting matching ${name}:`);
+      console.log(error);
       app.vue.matchings.push({
+        id: id,
         _idx: app.vue.matchings.length,
         name: name,
         description: description,
@@ -202,8 +211,10 @@ let init = function (app) {
   app.init = () => {
     axios.get(load_matchings_url).then((response) => {
       app.vue.matchings = app.enumerate(response.data.matchings);
+      app.reset_matching_form();
     }).catch(function (error) {
-      console.log(`Failed to load matchings: ${JSON.stringify(error)}`);
+      console.log(`Failed to load matchings:`);
+      console.log(error);
     });
   };
 
