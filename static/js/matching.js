@@ -38,6 +38,9 @@ let init = function (app) {
   app.add_class = function () {
     const name = app.vue.add_class_name;
     const description = app.vue.add_class_description;
+    for(let i=0; i<app.vue.add_class_num_sections.length; i++) {
+      app.vue.add_class_num_sections[i] = parseInt(app.vue.add_class_num_sections[i]);
+    }
     const num_sections = app.vue.add_class_num_sections;
     if (name === '') {
       console.error('Class must have name');

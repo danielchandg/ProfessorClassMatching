@@ -23,6 +23,12 @@
             </div>
          </div>
          <div class="field">
+            <label class="label">Quarters:</label>
+            <div class="control">
+               <input type="number" v-model="add_matching_num_quarters" class="input">
+            </div>
+         </div>
+         <div class="field">
             <div class="control">
                <input type="submit" @click="add_matching()" value="Add" class="button is-primary">
                <input type="submit" @click="set_add_status(false)" value="Cancel" class="button is-warning">
@@ -39,7 +45,6 @@
             <th>Name</th>
             <th>Description</th>
             <th>Number of quarters</th>
-            <th>Quarter names</th>
             <th>Classes</th>
             <th>Professors</th>
             <th>Matches</th>
@@ -48,7 +53,7 @@
          </tr>
          <tr v-for="m in matchings">
             <td
-               v-for="field in ['id', 'name', 'description', 'num_quarters', 'quarter_names', 'num_classes', 'num_professors', 'num_matches', 'created_on']">
+               v-for="field in ['id', 'name', 'description', 'num_quarters', 'num_classes', 'num_professors', 'num_matches', 'created_on']">
                {{m[field]}}
             </td>
             <td>

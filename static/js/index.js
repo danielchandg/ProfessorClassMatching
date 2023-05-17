@@ -7,7 +7,6 @@ let init = function (app) {
     add_matching_name: '', // Name of the matching that the user wants to add
     add_matching_description: '',
     add_matching_num_quarters: 0, // Number of quarters
-    add_matching_quarter_names: [], // Names of quarters
     add_mode: false, // Is the user currently adding a matching?
   };
 
@@ -23,12 +22,24 @@ let init = function (app) {
     const name = app.vue.add_matching_name;
     const description = app.vue.add_matching_description;
     const num_quarters = app.vue.add_matching_num_quarters;
-    const quarter_names = app.vue.add_matching_quarter_names;
     if (name === '') {
       console.error('Matching must have name');
       return;
     }
+    if (num_quarters <= 0 || num_quarters >= 100) {
+      console.error('Number of quarters must be in the range [1-99]');
+      return;
+    }
     const curTime = new Date();
+    let quarter_names = [];
+    if (num_quarters <= 4) {
+      quarter_names = ['Fall', 'Winter', 'Spring', 'Summer'].slice(0, num_quarters);
+    }
+    else {
+      for(let i=1; i<=num_quarters; i++) {
+        quarter_names.push(`Quarter ${i}`);
+      }
+    }
     console.log(`Adding matching ${name}`);
     app.vue.matchings.push({
       id: -1,
@@ -39,7 +50,6 @@ let init = function (app) {
       num_professors: 0,
       num_matches: 0,
       num_quarters: num_quarters,
-      quarter_names: quarter_names,
       created_on: curTime.toString()
     });
     app.reset_matching_form();
@@ -91,8 +101,7 @@ let init = function (app) {
   app.reset_matching_form = function () {
     app.vue.add_matching_name = `Matching ${app.vue.matchings.length + 1}`;
     app.vue.add_matching_description = '';
-    app.vue.add_matching_num_quarters = 2;
-    app.vue.add_matching_quarter_names = ['fall', 'spring'];
+    app.vue.add_matching_num_quarters = 0;
   }
 
   app.goto_matching = function (idx) {
@@ -114,7 +123,6 @@ let init = function (app) {
     const num_professors = app.vue.matchings[idx].num_professors;
     const num_matches = app.vue.matchings[idx].num_matches;
     const num_quarters = app.vue.matchings[idx].num_quarters;
-    const quarter_names = app.vue.matchings[idx].quarter_names;
     const curTime = new Date();
     console.log(`Duplicating matching ${name}`);
     app.vue.matchings.push({
@@ -126,7 +134,6 @@ let init = function (app) {
       num_professors: num_professors,
       num_matches: num_matches,
       num_quarters: num_quarters,
-      quarter_names: quarter_names,
       created_on: curTime.toString()
     })
     axios.post(duplicate_matching_url, {
@@ -163,7 +170,6 @@ let init = function (app) {
     const num_professors = app.vue.matchings[idx].num_professors;
     const num_matches = app.vue.matchings[idx].num_matches;
     const num_quarters = app.vue.matchings[idx].num_quarters;
-    const quarter_names = app.vue.matchings[idx].quarter_names;
     const created_on = app.vue.matchings[idx].created_on;
     if(id < 0) {
       console.error(`Unable to delete matching ${name} with id ${id}`);
@@ -189,7 +195,6 @@ let init = function (app) {
         num_professors: num_professors,
         num_matches: num_matches,
         num_quarters: num_quarters,
-        quarter_names: quarter_names,
         created_on: created_on
       });
     });

@@ -7,7 +7,8 @@
 </style>
 
 <div class="section" id="vue-target" v-cloak>
-   This is matching {{matching_name}}. Matching [[=my_id]] for you. Globally, this is matching [[=matching_id]]
+   <p>{{matching_name}}</p>
+   <p>There are {{num_quarters}} quarters with names: {{quarter_names}}</p>
 
    <div v-if="add_class_mode" class="container block">
       <div class="title">Add Class</div>
@@ -22,6 +23,12 @@
             <label class="label">Description:</label>
             <div class="control">
                <input type="text" v-model="add_class_description" class="input">
+            </div>
+         </div>
+         <label class="label">Number of sections:</label>
+         <div v-for="(_, idx) in add_class_num_sections" class="field">
+            <div class="control">
+               <input type="number" v-model="add_class_num_sections[idx]" class="input">
             </div>
          </div>
          <div class="field">
