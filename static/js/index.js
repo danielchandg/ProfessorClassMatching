@@ -18,13 +18,14 @@ let init = function (app) {
     return a;
   };
 
+  // Done
   app.add_matching = function () {
     const name = app.vue.add_matching_name;
     const description = app.vue.add_matching_description;
     const num_quarters = app.vue.add_matching_num_quarters;
     const quarter_names = app.vue.add_matching_quarter_names;
     if (name === '') {
-      console.log('Matching must have name');
+      console.error('Matching must have name');
       return;
     }
     const curTime = new Date();
@@ -52,16 +53,17 @@ let init = function (app) {
     }).then(function (response) {
       console.log(`Added matching ${name}`);
       if(!app.update_local_matching(name, response.data.id)) {
-        console.log(`After added matching, unable to add ID ${response.data.id}`);
+        console.error(`After added matching, unable to add ID ${response.data.id}`);
       }
     }).catch(function (error) {
-      console.log(`Error when adding matching ${name}: ${JSON.stringify(error)}`);
+      console.error(`Error when adding matching ${name}: ${JSON.stringify(error)}`);
       if(!app.remove_local_matching(name)) {
-        console.log(`Error when un-adding matching ${name}, not found`);
+        console.error(`Error when un-adding matching ${name}, not found`);
       }
     });
   }
 
+  // Given the name of a matching and id, update its ID in app.vue.matchings
   app.update_local_matching = function (name, id) {
     for(let i = app.vue.matchings.length - 1; i >= 0; i--) {
       if(app.vue.matchings[i].name === name && app.vue.matchings[i].id === -1) {
@@ -101,10 +103,11 @@ let init = function (app) {
   }
 
   // TODO
-  // Write controller function duplicate_matching
+  // Test controller function duplicate_matching
   // Add frontend button
   // Add URL route to index.html
   app.duplicate_matching = function (idx) {
+    const id = app.vue.matchings[idx].id;
     const name = app.vue.matchings[idx].name;
     const description = app.vue.matchings[idx].description;
     const num_classes = app.vue.matchings[idx].num_classes;
@@ -115,6 +118,7 @@ let init = function (app) {
     const curTime = new Date();
     console.log(`Duplicating matching ${name}`);
     app.vue.matchings.push({
+      id: -1,
       _idx: app.vue.matchings.length,
       name: name + ' copy',
       description: description,
@@ -123,18 +127,20 @@ let init = function (app) {
       num_matches: num_matches,
       num_quarters: num_quarters,
       quarter_names: quarter_names,
-      created_on: curTime.toLocaleDateString()
+      created_on: curTime.toString()
     })
     axios.post(duplicate_matching_url, {
-      idx: idx,
+      matching_id: id,
       created_on: curTime.toString()
     }).then(function (response) {
       console.log(`Duplicated matching ${name}`);
+      if(!app.update_local_matching(name + ' copy', response.data.id)) {
+        console.error(`After added matching, unable to add ID ${response.data.id}`);
+      }
     }).catch(function (error) {
-      console.log(`Error when duplicating matching ${name}:`);
-      console.log(error);
+      console.error(`Error when duplicating matching ${name}:`, error);
       if(!app.remove_local_matching(name + ' copy')) {
-        console.log(`Error when un-duplicating matching ${name}, not found`);
+        console.error(`Error when un-duplicating matching ${name}, not found`);
       }
     });
   }
@@ -148,6 +154,7 @@ let init = function (app) {
 
   }
 
+  // Done
   app.delete_matching = function (idx) {
     const id = app.vue.matchings[idx].id;
     const name = app.vue.matchings[idx].name;
@@ -159,11 +166,11 @@ let init = function (app) {
     const quarter_names = app.vue.matchings[idx].quarter_names;
     const created_on = app.vue.matchings[idx].created_on;
     if(id < 0) {
-      console.log(`Unable to delete matching with id ${id}`);
+      console.error(`Unable to delete matching ${name} with id ${id}`);
       return;
     }
     if(!app.remove_local_matching(name)){
-      console.log(`Error when deleting matching ${name}: Not found`);
+      console.error(`Error when deleting matching ${name}: Not found`);
       return;
     }
 
@@ -172,8 +179,7 @@ let init = function (app) {
     }).then(function (response) {
       console.log(`Deleted matching ${name}`);
     }).catch(function (error) {
-      console.log(`Error when deleting matching ${name}:`);
-      console.log(error);
+      console.error(`Error when deleting matching ${name}:`, error);
       app.vue.matchings.push({
         id: id,
         _idx: app.vue.matchings.length,
@@ -194,11 +200,11 @@ let init = function (app) {
   }
 
   app.methods = {
-    add_matching: app.add_matching,
-    goto_matching: app.goto_matching,
-    edit_matching: app.edit_matching,
-    delete_matching: app.delete_matching,
-    duplicate_matching: app.duplicate_matching,
+    add_matching: app.add_matching, // Done
+    goto_matching: app.goto_matching, // Done
+    edit_matching: app.edit_matching, // TODO
+    delete_matching: app.delete_matching, // Done
+    duplicate_matching: app.duplicate_matching, // In progress
     set_add_status: app.set_add_status
   }
 
@@ -213,8 +219,7 @@ let init = function (app) {
       app.vue.matchings = app.enumerate(response.data.matchings);
       app.reset_matching_form();
     }).catch(function (error) {
-      console.log(`Failed to load matchings:`);
-      console.log(error);
+      console.error(`Failed to load matchings:`, error);
     });
   };
 

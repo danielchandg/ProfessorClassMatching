@@ -40,7 +40,7 @@ let init = function (app) {
     const description = app.vue.add_class_description;
     const num_sections = app.vue.add_class_num_sections;
     if (name === '') {
-      console.log('Class must have name');
+      console.error('Class must have name');
       return;
     }
     const curTime = new Date();
@@ -62,13 +62,26 @@ let init = function (app) {
       created_on: curTime.toString()
     }).then(function (response) {
       console.log(`Added class ${name}`);
+      if(!app.update_local_class(name, response.data.id)) {
+        console.error(`After added class, unable to add ID ${response.data.id}`);
+      }
     }).catch(function (error) {
-      console.log(`Error when adding class ${name}:`);
-      console.log(error);
+      console.error(`Error when adding class ${name}:`, error);
       if(!app.remove_local_class(name)) {
-        console.log(`Error when un-adding class ${name}, not found`);
+        console.error(`Error when un-adding class ${name}, not found`);
       }
     });
+  }
+
+  // Given the name of a class and id, update its ID in app.vue.classes
+  app.update_local_class = function (name, id) {
+    for(let i = app.vue.classes.length - 1; i >= 0; i--) {
+      if(app.vue.classes[i].name === name && app.vue.classes[i].id === -1) {
+        app.vue.classes[i].id = id;
+        return true;
+      }
+    }
+    return false;
   }
 
   // Given the name of a class, removes it from app.vue.classes
@@ -99,28 +112,30 @@ let init = function (app) {
 
   }
 
-  // TODO
-  // Write Vue function app.delete_class
-  // Write controller function delete_class
-  // Add frontend URL & button
+  // Done
   app.delete_class = function (idx) {
+    const id = app.vue.classes[idx].id;
     const name = app.vue.classes[idx].name;
     const description = app.vue.classes[idx].description;
     const num_sections = app.vue.classes[idx].num_sections;
     const created_on = app.vue.classes[idx].created_on;
+    if(id < 0) {
+      console.error(`Unable to delete class ${name} with id ${id}`);
+      return;
+    }
     if(!app.remove_local_class(name)){
-      console.log(`Error when deleting class ${name}: Not found`);
+      console.error(`Error when deleting class ${name}: Not found`);
       return;
     }
 
     axios.post(delete_class_url, {
-      idx: idx
+      id: id
     }).then(function (response) {
       console.log(`Deleted class ${name}`);
     }).catch(function (error) {
-      console.log(`Error when deleting class ${name}:`);
-      console.log(error);
+      console.error(`Error when deleting class ${name}:`, error);
       app.vue.classes.push({
+        id: id,
         _idx: app.vue.classes.length,
         name: name,
         description: description,
@@ -138,11 +153,64 @@ let init = function (app) {
   app.add_professor = function () {
     const name = app.vue.add_professor_name;
     const description = app.vue.add_professor_description;
-    const prof_classes = app.vue.add_professor_classes;
+    const requested_classes = app.vue.add_professor_classes;
     if (name === '') {
-      console.log('Professor must have name');
+      console.error('Professor must have name');
       return;
     }
+    const curTime = new Date();
+    console.log(`Adding professor ${name}`);
+    app.vue.professors.push({
+      id: -1,
+      _idx: app.vue.professors.length,
+      name: name,
+      description: description,
+      requested_classes: requested_classes,
+      created_on: curTime.toString()
+    });
+    app.reset_professor_form();
+    app.vue.add_professor_mode = false;
+    axios.post(add_professor_url, {
+      name: name,
+      description: description,
+      requested_classes: requested_classes,
+      created_on: curTime.toString()
+    }).then(function (response) {
+      console.log(`Added professor ${name}`);
+      if(!app.update_local_professor(name, response.data.id)) {
+        console.error(`After adding professor, unable to add ID ${response.data.id}`);
+      }
+    }).catch(function (error) {
+      console.error(`Error when adding professor ${name}:`, error);
+      if(!app.remove_local_professor(name)) {
+        console.error(`Error when un-adding professor ${name}, not found`);
+      }
+    });
+  }
+
+  // Given the name of a professor and id, update its ID in app.vue.professors
+  app.update_local_professor = function (name, id) {
+    for(let i = app.vue.professors.length - 1; i >= 0; i--) {
+      if(app.vue.professors[i].name === name && app.vue.professors[i].id === -1) {
+        app.vue.professors[i].id = id;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Given the name of a professor, removes it from app.vue.professors
+  app.remove_local_professor = function (name) {
+    for (let i = app.vue.professors.length - 1; i >= 0; i--) {
+      if (app.vue.professors[i].name === name) {
+        app.vue.professors.splice(i, 1);
+        for(let j = i; j < app.vue.professors.length; j++) {
+          app.vue.professors[j]._idx = j;
+        }
+        return true;
+      }
+    }
+    return false;
   }
 
   app.reset_professor_form = function () {
@@ -164,7 +232,35 @@ let init = function (app) {
   // Write controller function delete_professor
   // Add frontend URL & button
   app.delete_professor = function (idx) {
+    const id = app.vue.professors[idx].id;
+    const name = app.vue.professors[idx].name;
+    const description = app.vue.professors[idx].description;
+    const requested_classes = app.vue.professors[idx].requested_classes;
+    const created_on = app.vue.professors[idx].created_on;
+    if(id < 0) {
+      console.error(`Unable to delete professor ${name} with id ${id}`);
+      return;
+    }
+    if(!app.remove_local_professor(name)){
+      console.error(`Error when deleting professor ${name}: Not found`);
+      return;
+    }
 
+    axios.post(delete_professor_url, {
+      id: id
+    }).then(function (response) {
+      console.log(`Deleted professor ${name}`);
+    }).catch(function (error) {
+      console.error(`Error when deleting professor ${name}:`, error);
+      app.vue.professors.push({
+        id: id,
+        _idx: app.vue.professors.length,
+        name: name,
+        description: description,
+        requested_classes: requested_classes,
+        created_on: created_on
+      });
+    });
   }
 
   app.set_add_class_status = (new_status) => {
@@ -208,8 +304,7 @@ let init = function (app) {
       app.reset_class_form();
       app.reset_professor_form();
     }).catch((error) => {
-      console.log('Failed to load my matching:');
-      console.log(error);
+      console.error('Failed to load my matching:', error);
     })
   };
 

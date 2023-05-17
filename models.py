@@ -50,16 +50,14 @@ db.define_table('professors',
                 Field('name', required=True),
                 Field('matching_id', 'reference matchings'),
                 Field('description'),
-
-                # List of '[quarter #] [class index]' the professor may teach in each quarter.
-                # For example, suppose the prof may teach:
-                    # 1st quarter: Classes with index 1, 2, or 3
-                    # 2nd quarter: Classes with index 0, 7, or 9
-                    # 3rd quarter: Classes with index 100 or 1000
-                # Then, my_classes = "['0 1', '0 2', '0 3', '1 0', '1 7', '1 9', '1 100', '1 1000']"
-                Field('my_classes', 'list:string'),
-
                 Field('time_created')
+                )
+
+# This table stores all requested classes of all professors.
+db.define_table('class_requests',
+                Field('professor_id', 'reference professors'),
+                Field('class_id', 'reference classes'),
+                Field('quarter', 'integer')
                 )
 
 # This table stores all class/professor/quarter matches of all matchings of all users.
