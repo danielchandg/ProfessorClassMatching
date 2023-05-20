@@ -370,3 +370,19 @@ let init3 = function (app_search) {
 };
 
 init3(app_search);
+
+//Gets buttons to be visible when burger icon is present for small devices
+window.addEventListener("resize", (event) => {
+  if(window.innerWidth > 1024){
+    document.getElementById('view_one').classList.add('is-inverted');
+    document.getElementById('view_two').classList.add('is-inverted');
+    document.getElementById('view_three').classList.add('is-inverted');
+  }
+  else{
+    document.getElementById('view_one').classList.remove('is-inverted');
+    document.getElementById('view_two').classList.remove('is-inverted');
+    document.getElementById('view_three').classList.remove('is-inverted');
+  }
+}, true);
+
+window.dispatchEvent(new Event("resize"));
