@@ -7,123 +7,163 @@
 </style>
 
 <div class="section" id="vue-target" v-cloak>
-   <p>{{matching_name}}</p>
-   <p>There are {{num_quarters}} quarters with names: {{quarter_names}}</p>
+   <div v-if="view === 1">
+      <h1 class="title">This is view 1</h1>
 
-   <div v-if="add_class_mode" class="container block">
-      <div class="title">Add Class</div>
-      <div class="form">
-         <div class="field">
-            <label class="label">Name:</label>
-            <div class="control">
-               <input type="text" v-model="add_class_name" class="input">
+      <p>{{matching_name}}</p>
+      <p>There are {{num_quarters}} quarters with names: {{quarter_names}}</p>
+
+      <div v-if="add_class_mode" class="container block">
+         <div class="title">Add Class</div>
+         <div class="form">
+            <div class="field">
+               <label class="label">Name:</label>
+               <div class="control">
+                  <input type="text" v-model="add_class_name" class="input">
+               </div>
             </div>
-         </div>
-         <div class="field">
-            <label class="label">Description:</label>
-            <div class="control">
-               <input type="text" v-model="add_class_description" class="input">
+            <div class="field">
+               <label class="label">Description:</label>
+               <div class="control">
+                  <input type="text" v-model="add_class_description" class="input">
+               </div>
             </div>
-         </div>
-         <label class="label">Number of sections:</label>
-         <div v-for="(_, idx) in add_class_num_sections" class="field">
-            <div class="control">
-               <input type="number" v-model="add_class_num_sections[idx]" class="input">
+            <label class="label">Number of sections:</label>
+            <div v-for="(_, idx) in add_class_num_sections" class="field">
+               <div class="control">
+                  <input type="number" v-model="add_class_num_sections[idx]" class="input">
+               </div>
             </div>
-         </div>
-         <div class="field">
-            <div class="control">
-               <input type="submit" @click="add_class()" value="Add" class="button is-primary">
-               <input type="submit" @click="set_add_class_status(false)" value="Cancel" class="button is-warning">
+            <div class="field">
+               <div class="control">
+                  <input type="submit" @click="add_class()" value="Add" class="button is-primary">
+                  <input type="submit" @click="set_add_class_status(false)" value="Cancel" class="button is-warning">
+               </div>
             </div>
          </div>
       </div>
-   </div>
 
-   <div class="container block">
-      <h1 class="title">Classes</h1>
-      <table class="table is-striped is-fullwidth">
-         <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Number of sections</th>
-            <th>Created on</th>
-            <th></th>
-         </tr>
-         <tr v-for="c in classes">
-            <td
-               v-for="field in ['id', 'name', 'description', 'num_sections', 'created_on']">
-               {{c[field]}}
-            </td>
-            <td>
-               <button @click="delete_class(c._idx)" class="button is-danger">
-                  <i class="fa fa-trash"></i></button>
-               <button @click="" class="button is-warning">
-                  <i class="fa fa-edit"></i></button>
-            </td>
-         </tr>
-      </table>
-      <button @click="set_add_class_status(true)" class="button is-primary">
-         <i class="fa fa-plus fa-fw"></i> Add Class
-      </button>
-   </div>
+      <div class="container block">
+         <h1 class="title">Classes</h1>
+         <table class="table is-striped is-fullwidth">
+            <tr>
+               <th>ID</th>
+               <th>Name</th>
+               <th>Description</th>
+               <th>Number of sections</th>
+               <th>Created on</th>
+               <th></th>
+            </tr>
+            <tr v-for="c in classes">
+               <td
+                  v-for="field in ['id', 'name', 'description', 'num_sections', 'created_on']">
+                  {{c[field]}}
+               </td>
+               <td>
+                  <button @click="delete_class(c._idx)" class="button is-danger">
+                     <i class="fa fa-trash"></i></button>
+                  <button @click="" class="button is-warning">
+                     <i class="fa fa-edit"></i></button>
+               </td>
+            </tr>
+         </table>
+         <button @click="set_add_class_status(true)" class="button is-primary">
+            <i class="fa fa-plus fa-fw"></i> Add Class
+         </button>
+      </div>
 
 
-   <div v-if="add_professor_mode" class="container block">
-      <div class="title">Add Professor</div>
-      <div class="form">
-         <div class="field">
-            <label class="label">Name:</label>
-            <div class="control">
-               <input type="text" v-model="add_professor_name" class="input">
+      <div v-if="add_professor_mode" class="container block">
+         <div class="title">Add Professor</div>
+         <div class="form">
+            <div class="field">
+               <label class="label">Name:</label>
+               <div class="control">
+                  <input type="text" v-model="add_professor_name" class="input">
+               </div>
             </div>
-         </div>
-         <div class="field">
-            <label class="label">Description:</label>
-            <div class="control">
-               <input type="text" v-model="add_professor_description" class="input">
+            <div class="field">
+               <label class="label">Description:</label>
+               <div class="control">
+                  <input type="text" v-model="add_professor_description" class="input">
+               </div>
             </div>
-         </div>
-         <div class="field">
-            <div class="control">
-               <input type="submit" @click="add_professor()" value="Add" class="button is-primary">
-               <input type="submit" @click="set_add_professor_status(false)" value="Cancel" class="button is-warning">
+            <div class="field">
+               <div class="control">
+                  <input type="submit" @click="add_professor()" value="Add" class="button is-primary">
+                  <input type="submit" @click="set_add_professor_status(false)" value="Cancel" class="button is-warning">
+               </div>
             </div>
          </div>
       </div>
+
+      <div class="container block">
+         <h1 class="title">Professors</h1>
+         <table class="table is-striped is-fullwidth">
+            <tr>
+               <th>ID</th>
+               <th>Name</th>
+               <th>Description</th>
+               <th>Requested classes</th>
+               <th>Created on</th>
+               <th></th>
+            </tr>
+            <tr v-for="p in professors">
+               <td
+                  v-for="field in ['id', 'name', 'description', 'requested_classes', 'created_on']">
+                  {{p[field]}}
+               </td>
+               <td>
+                  <button @click="delete_professor(p._idx)" class="button is-danger">
+                     <i class="fa fa-trash"></i></button>
+                  <button @click="" class="button is-warning">
+                     <i class="fa fa-edit"></i></button>
+               </td>
+            </tr>
+         </table>
+         <button @click="set_add_professor_status(true)" class="button is-primary">
+            <i class="fa fa-plus fa-fw"></i> Add Professor
+         </button>
+      </div>
    </div>
 
-   <div class="container block">
-      <h1 class="title">Professors</h1>
-      <table class="table is-striped is-fullwidth">
-         <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Requested classes</th>
-            <th>Created on</th>
-            <th></th>
-         </tr>
-         <tr v-for="p in professors">
-            <td
-               v-for="field in ['id', 'name', 'description', 'requested_classes', 'created_on']">
-               {{p[field]}}
-            </td>
-            <td>
-               <button @click="delete_professor(p._idx)" class="button is-danger">
-                  <i class="fa fa-trash"></i></button>
-               <button @click="" class="button is-warning">
-                  <i class="fa fa-edit"></i></button>
-            </td>
-         </tr>
-      </table>
-      <button @click="set_add_professor_status(true)" class="button is-primary">
-         <i class="fa fa-plus fa-fw"></i> Add Professor
-      </button>
+   <div v-if="view === 2">
+      <h1 class="title">This is view 2</h1>
+      <!-- Insert content of view 2 here -->
    </div>
 
+   <div v-if="view === 3">
+      <h1 class="title">This is view 3</h1>
+      <!-- Insert content of view 3 here -->
+   </div>
 </div>
+
+<!-- Places view buttons on navbar located in layout -->
+[[block page_menu_items]] 
+   <div class="navbar-item ml-3" id="app_view">
+      <div class="navbar-item">
+         <button class="button is_normal is-responsive is-rounded is-dark is-outlined is-inverted" @click="change_view(1)">View 1</button>
+      </div>
+      <div class="navbar-item">
+         <button class="button is_normal is-responsive is-rounded is-dark is-outlined is-inverted" @click="change_view(2)">View 2</button>
+      </div>
+      <div class="navbar-item">
+         <button class="button is_normal is-responsive is-rounded is-dark is-outlined is-inverted" @click="change_view(3)">View 3</button>
+      </div>
+   </div>
+[[end]]
+
+<!-- Places search bar on navbar located in layout-->
+[[block page_menu_items_search]]
+      <div class="navbar-item" id="app_search">
+         <p class="control has-icons-right">
+         <input class="input" type="text" placeholder="Search">
+         <span class="icon is-right">
+            <i class="fa fa-search"></i>
+         </span>
+         </p>
+      </div>
+[[end]]
 
 [[block page_scripts]]
 <!-- Loads the index-specific js for Vue -->
