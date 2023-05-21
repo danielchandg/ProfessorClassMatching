@@ -17,6 +17,12 @@ let init = function (app) {
     return a;
   };
 
+  app.parseDate = function (dateString) {
+    const date = new Date(dateString);
+    const options = { month: 'short', day: 'numeric', year: 'numeric' };
+    return date.toLocaleDateString(undefined, options);
+  };
+
   // Done
   app.add_matching = function () {
     const name = app.vue.add_matching_name;
@@ -210,7 +216,8 @@ let init = function (app) {
     edit_matching: app.edit_matching, // TODO
     delete_matching: app.delete_matching, // Done
     duplicate_matching: app.duplicate_matching, // In progress
-    set_add_status: app.set_add_status
+    set_add_status: app.set_add_status,
+    parseDate: app.parseDate
   }
 
   app.vue = new Vue({

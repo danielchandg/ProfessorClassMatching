@@ -6,8 +6,10 @@
    }
 </style>
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css">
+
 <div class="section" id="vue-target" v-cloak>
-   <div v-if="add_mode" class="container block">
+   <!-- <div v-if="add_mode" class="container block">
       <div class="title">Add Matching</div>
       <div class="form">
          <div class="field">
@@ -35,9 +37,99 @@
             </div>
          </div>
       </div>
-   </div>
+   </div> -->
 
    <div class="container block">
+      <h1 class="title">Matchings</h1>
+
+      <div class="columns">
+
+         <div class="column is-4" v-for="m in matchings">
+            <div class="tile is-ancestor">
+               <div class="tile is-vertical is-parent">
+                  <div class="tile is-child" @click="goto_matching(m._idx)">
+                     <div class="box has-background-success">
+                        <div class="dropdown is-hoverable is-pulled-right">
+                           <div class="dropdown-trigger">
+                              <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+                                 <span class="icon">
+                                    <i class="fa fa-ellipsis-v fa-fw"></i>
+                                  </span>
+                              </button>
+                           </div>
+                           <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                              <div class="dropdown-content">
+                                 <a class="dropdown-item" @click="edit_matching(m._idx)">Edit</a>
+                                 <hr class="dropdown-divider">
+                                 <a class="dropdown-item" @click="delete_matching(m._idx)">Delete</a>
+                                 <hr class="dropdown-divider">
+                                 <a class="dropdown-item" @click="duplicate_matching(m._idx)">Duplicate</a>
+                              </div>
+                           </div>
+                        </div>
+
+                        <p class="subtitle has-text-weight-bold has-text-centered">{{ m.name }}</p>
+                        <p class="has-text-centered">{{m.num_classes}} classes, {{m.num_professors}} professors, {{m.num_quarters}} quarters, {{m.num_matches}} matches</p>
+                        <p class="has-text-centered">{{ m.description }}</p>
+                        <p class="has-text-centered">CREATED {{ parseDate(m.created_on)}}</p>
+                        <!-- <button @click="goto_matching(m._idx)" class="button">Go to Matching</button>
+                        <button @click="edit_matching(m._idx)" class="button">Edit Matching</button>
+                        <button @click="duplicate_matching(m._idx)" class="button">Duplicate Matching</button>
+                        <button @click="delete_matching(m._idx)" class="button">Delete Matching</button> -->
+                     </div>
+                  </div>
+
+               </div>
+
+            </div>
+
+         </div>
+      
+      </div>
+
+      <button @click="set_add_status(true)" class="button is-light">
+         <i class="fa fa-plus fa-fw "></i>  New Matching 
+      </button>
+
+      <div class="modal" :class="{ 'is-active': add_mode }">
+         <div class="modal-background"></div>
+         <div class="modal-content">
+            <div class="box">
+               <h2 class="title">Create New Matching</h2>
+               <form @submit.prevent="add_matching">
+                  <div class="field">
+                     <label class="label">Name:</label>
+                     <div class="control">
+                        <input type="text" v-model="add_matching_name" class="input" required>
+                     </div>
+                  </div>
+                  <div class="field">
+                     <label class="label">Description:</label>
+                     <div class="control">
+                        <input type="text" v-model="add_matching_description" class="input">
+                     </div>
+                  </div>
+                  <div class="field">
+                     <label class="label">Number of Quarters:</label>
+                     <div class="control">
+                        <input type="number" v-model="add_matching_num_quarters" class="input" min="1" max="99" required>
+                     </div>
+                  </div>
+                  <div class="field">
+                     <div class="control">
+                        <button type="submit" class="button is-primary">Add Matching</button>
+                        <button @click="set_add_status(false)" class="button is-warning">Cancel</button>
+                     </div>
+                  </div>
+               </form>
+            </div>
+         </div>
+         <button class="modal-close is-large" aria-label="close" @click="set_add_status(false)"></button>
+      </div>
+
+   </div>
+
+   <!-- <div class="container block">
       <h1 class="title">Matchings</h1>
       <table class="table is-striped is-fullwidth">
          <tr>
@@ -68,7 +160,7 @@
          <i class="fa fa-plus fa-fw"></i> Add Matching
       </button>
    </div>
-</div>
+</div> -->
 
 [[block page_scripts]]
 <!-- Loads the index-specific js for Vue -->
