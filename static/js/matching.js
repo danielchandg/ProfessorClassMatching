@@ -288,7 +288,10 @@ let init = function (app) {
   app.vue = new Vue({
     el: "#vue-target",
     data: app.data,
-    methods: app.methods
+    methods: app.methods,
+    mounted() {
+      const tagsInputs = BulmaTagsInput.attach();
+    },
   });
 
   // TODO

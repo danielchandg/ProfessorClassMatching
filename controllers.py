@@ -179,6 +179,7 @@ def matching(my_id=None):
     return dict(
         my_id=my_id,
         matching_id=matching_id,
+        num_quarters=my_matching.num_quarters,
         load_my_matching_url=URL('load_my_matching', matching_id, signer=url_signer),
         add_class_url = URL('add_class', matching_id, signer=url_signer),
         delete_class_url = URL('delete_class', matching_id, signer=url_signer),

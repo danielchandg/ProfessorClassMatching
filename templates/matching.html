@@ -73,7 +73,7 @@
       </div>
 
 
-      <div v-if="add_professor_mode" class="container block">
+      <div v-show="add_professor_mode" class="container block">
          <div class="title">Add Professor</div>
          <div class="form">
             <div class="field">
@@ -88,6 +88,18 @@
                   <input type="text" v-model="add_professor_description" class="input">
                </div>
             </div>
+            <label class="label">Classes:</label>
+            [[ for i in range(num_quarters): ]]
+               <div class="field">
+                  <label class="label">{{ quarter_names[ [[=i]] ]}}</label>
+                  <div class="control">
+                     <select multiple data-type="tags" placeholder="Add a class">
+                        <option v-for="c in classes">{{c.name}}</option>
+                        <option value="one">One</option>
+                     </select>
+                  </div>
+               </div>
+            [[ pass ]]
             <div class="field">
                <div class="control">
                   <input type="submit" @click="add_professor()" value="Add" class="button is-primary">
@@ -165,6 +177,11 @@
       </div>
 [[end]]
 
+[[block page_head]]
+   <!-- This isn't working currently, not sure why -->
+   <link rel="stylesheet" href="bulma-tagsinput/css/bulma-tagsinput.css" />
+[[end]]
+
 [[block page_scripts]]
 <!-- Loads the index-specific js for Vue -->
 <script>
@@ -176,5 +193,6 @@
    const add_professor_url = "[[=XML(add_professor_url)]]";
    const delete_professor_url = "[[=XML(delete_professor_url)]]";
 </script>
+<script src="bulma-tagsinput/js/bulma-tagsinput.js"></script>
 <script src="js/matching.js"></script>
 [[end]]
