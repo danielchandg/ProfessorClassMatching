@@ -4,6 +4,16 @@
    [v-cloak] {
       display: none;
    }
+
+   .blue-background{
+      background-color: lightskyblue;
+      color: white  !important;
+   }
+
+   .row-title{
+      background-color: lightgray;
+   }
+
 </style>
 
 <div class="section" id="vue-target" v-cloak>
@@ -130,6 +140,42 @@
    <div v-if="view === 2">
       <h1 class="title">This is view 2</h1>
       <!-- Insert content of view 2 here -->
+      <div class="container">
+         <table class ="table is-striped is-fullwidth">
+            <thead>
+                  <th v-for="q in quarter_names" class="blue-background" :key="q">
+                        {{q}}
+                  </th>
+
+            </thead>
+            <tbody>
+                  <tr v-for="c in classes" :key="c">
+                     <td v-for="field in ['name']" class="row-title" :colspan="num_quarters":key="field">
+                     
+                        {{c[field]}}
+                     </td>
+                     <td v-for="q in quarter_names" :key="q" class="row-content">
+                        <div class="tile is-ancestor">
+                           <div class="tile is-parent is-vertical">
+                              <div class="tile is-child" :key="matching_name"> {{matching_name}}</div>
+                           </div>
+                        </div>
+
+
+                     </td>
+                  </tr>
+                     
+                  
+
+            </tbody>
+
+
+
+         </table>
+
+
+      </div>
+
    </div>
 
    <div v-if="view === 3">
