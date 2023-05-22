@@ -1,4 +1,5 @@
 [[extend 'layout.html']]
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css%22%3E" >
 
 <style>
    [v-cloak] {
@@ -8,11 +9,14 @@
    .blue-background{
       background-color: lightskyblue;
       color: white  !important;
+      text-align: center !important;
+      
    }
 
    .row-title{
       background-color: lightgray;
    }
+
 
 </style>
 
@@ -143,9 +147,11 @@
       <div class="container">
          <table class ="table is-striped is-fullwidth">
             <thead>
-                  <th v-for="q in quarter_names" class="blue-background" :key="q">
+               <tr class="is-flex is-justify-content-space-between">
+                  <th v-for="q in quarter_names" class="blue-background has-text-centered":key="q">
                         {{q}}
                   </th>
+               </tr>
 
             </thead>
             <tbody>
@@ -153,16 +159,29 @@
                      <td v-for="field in ['name']" class="row-title" :colspan="num_quarters":key="field">
                      
                         {{c[field]}}
-                     </td>
-                     <td v-for="q in quarter_names" :key="q" class="row-content">
-                        <div class="tile is-ancestor">
-                           <div class="tile is-parent is-vertical">
-                              <div class="tile is-child" :key="matching_name"> {{matching_name}}</div>
-                           </div>
-                        </div>
+                        
+                        <table class="table is-striped is-fullwidth"> 
+                           <tr>
+                              <th v-for="q in quarter_names" :key="q" class="row-content" style="text-align: center;">
+                                 <div class="tile is-ancestor">
+                                    <div class="tile is-parent is-vertical">
+                                       <article class="tile is-child notification is-primary is-white"> 
+                                          <p>{{add_professor_name}}</p>
+                                       </article>
 
-
+                                    </div>
+                                 </div>
+   
+   
+                              </th>
+                           </tr>
+                        </table>
+                        
+                        
+                        
                      </td>
+                     
+                     
                   </tr>
                      
                   
@@ -173,8 +192,8 @@
 
          </table>
 
-
       </div>
+
 
    </div>
 
