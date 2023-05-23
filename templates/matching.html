@@ -16,6 +16,10 @@
    .row-title{
       background-color: lightgray;
    }
+   
+   .custom-tile{
+      background-color: white;
+   }
 
 
 </style>
@@ -158,25 +162,27 @@
                   <tr v-for="c in classes" :key="c">
                      <td v-for="field in ['name']" class="row-title" :colspan="num_quarters":key="field">
                      
-                        {{c[field]}}
+                        {{c[field]}} 
                         
-                        <table class="table is-striped is-fullwidth"> 
+                        <table class="table is-striped is-fullwidth">
                            <tr>
-                              <th v-for="q in quarter_names" :key="q" class="row-content" style="text-align: center;">
+                              <td v-for="q in quarter_names" style="text-align: center; background-color: wheat;">
                                  <div class="tile is-ancestor">
-                                    <div class="tile is-parent is-vertical">
-                                       <article class="tile is-child notification is-primary is-white"> 
-                                          <p>{{add_professor_name}}</p>
-                                       </article>
+                                    <div class="tile"> 
+                                       <div class="tile is-parent is-vertical">
+                                        <div class="tile is-child box notification custom-tile"> 
+                                             <p>{{add_professor_name}}</p>
+                                        </div>
 
+                                       </div>
                                     </div>
                                  </div>
-   
-   
-                              </th>
+                              </td>
+
                            </tr>
+
+
                         </table>
-                        
                         
                         
                      </td>
