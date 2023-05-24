@@ -15,7 +15,7 @@ $azure: #ebfaff;
 $purple: #8A4D76;
 $pink: #FA7C91;
 $brown: #757763;
-$beige-light: #D0D1CD;
+$beige-lightest: #fbfcf8;
 $beige-lighter: #EFF0EB;
 
 // Update Bulma's global variables
@@ -27,7 +27,7 @@ $success: $light-blue;
 
 // Update some of Bulma's component variables
 $body-background-color: $beige-lighter;
-$input-background-color: $beige-lighter;
+$input-background-color: $beige-lightest;
 // $control-border-width: 2px;
 // $input-border-color: transparent;
 // $input-shadow: none;

@@ -220,7 +220,7 @@ table th {
 }
 /* Bulma Form */
 .select select, .textarea, .input {
-  background-color: #EFF0EB;
+  background-color: #fbfcf8;
   border-color: hsl(0, 0%, 86%);
   border-radius: 4px;
   color: hsl(0, 0%, 21%);
