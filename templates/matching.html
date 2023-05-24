@@ -1,9 +1,27 @@
 [[extend 'layout.html']]
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css%22%3E" >
 
 <style>
    [v-cloak] {
       display: none;
    }
+
+   .blue-background{
+      background-color: lightskyblue;
+      color: white  !important;
+      text-align: center !important;
+      
+   }
+
+   .row-title{
+      background-color: lightgray;
+   }
+   
+   .custom-tile{
+      background-color: white;
+   }
+
+
 </style>
 
 <div class="section" id="vue-target" v-cloak>
@@ -130,6 +148,59 @@
    <div v-if="view === 2">
       <h1 class="title">This is view 2</h1>
       <!-- Insert content of view 2 here -->
+      <div class="container">
+         <table class ="table is-striped is-fullwidth">
+            <thead>
+               <tr class="is-flex is-justify-content-space-between">
+                  <th v-for="q in quarter_names" class="blue-background has-text-centered":key="q">
+                        {{q}}
+                  </th>
+               </tr>
+
+            </thead>
+            <tbody>
+                  <tr v-for="c in classes" :key="c">
+                     <td v-for="field in ['name']" class="row-title" :colspan="num_quarters":key="field">
+                     
+                        {{c[field]}} 
+                        
+                        <table class="table is-striped is-fullwidth">
+                           <tr>
+                              <td v-for="q in quarter_names" style="text-align: center; background-color: wheat;">
+                                 <div class="tile is-ancestor">
+                                    <div class="tile"> 
+                                       <div class="tile is-parent is-vertical">
+                                        <div class="tile is-child box notification custom-tile"> 
+                                             <p>{{add_professor_name}}</p>
+                                        </div>
+
+                                       </div>
+                                    </div>
+                                 </div>
+                              </td>
+
+                           </tr>
+
+
+                        </table>
+                        
+                        
+                     </td>
+                     
+                     
+                  </tr>
+                     
+                  
+
+            </tbody>
+
+
+
+         </table>
+
+      </div>
+
+
    </div>
 
    <div v-if="view === 3">
