@@ -21,7 +21,8 @@
 
 
         <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="the-navbar-menu"
-           onclick="this.classList.toggle('is-active');document.getElementById(this.dataset.target).classList.toggle('is-active');">
+           onclick="this.classList.toggle('is-active');
+           document.getElementById(this.dataset.target).classList.toggle('is-active');">
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
@@ -30,18 +31,23 @@
 
       <div id="the-navbar-menu" class="navbar-menu">
         <div class="navbar-start">
-          [[block page_menu_items]]<!-- individual pages can add menu items here -->[[end]]
         </div>
 
+        [[block page_menu_items]]<!-- individual pages can add menu items here -->[[end]]
+      
         <div class="navbar-end">
+          [[block page_menu_items_search]]<!-- individual pages can add menu items here -->[[end]]
           <div class="navbar-item">
             <div class="buttons">
               [[if globals().get('user'):]]
                 <div class="navbar-item has-dropdown is-hoverable">
                   <a class="navbar-link is-primary">
-                    [[=globals().get('user').get('email')]]
+                    <span class="icon">
+                      <i class="fa fa-user"></i>
+                   </span>
                   </a>
-                  <div class="navbar-dropdown">
+                  <div class="navbar-dropdown is-right">
+                    <a class="navbar-item">[[=globals().get('user').get('email')]]</a>
                     <a class="navbar-item" href="[[=URL('auth/logout')]]">Logout</a>
                     <a class="navbar-item" href="[[=URL('auth/profile')]]">Profile</a>
                     <a class="navbar-item" href="[[=URL('auth/change_password')]]">Change Password</a></li>

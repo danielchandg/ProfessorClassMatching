@@ -283,7 +283,7 @@ let init = function (app) {
     edit_professor: app.edit_professor,
     delete_professor: app.delete_professor,
     set_add_class_status: app.set_add_class_status,
-    set_add_professor_status: app.set_add_professor_status
+    set_add_professor_status: app.set_add_professor_status,
   }
 
   app.vue = new Vue({
@@ -316,3 +316,74 @@ let init = function (app) {
 };
 
 init(app);
+
+// This vue instance conects nav view buttons to functionality in the container with id vue_target
+let app_view = {};
+
+let init2 = function (app_view) {
+
+  app_view.data = {};
+
+  app_view.change_view = (current_view) => {
+    app.vue.view = current_view;
+  };
+
+  app_view.methods = {
+    change_view: app_view.change_view,
+  };
+
+  app_view.vue = new Vue({
+    el: "#app_view",
+    data: app_view.data,
+    methods: app_view.methods
+  });
+
+  app_view.init2 = () => {
+
+  };
+
+  app_view.init2();
+};
+
+init2(app_view);
+
+//TODO
+//Implement functionality for the search bar
+let app_search= {};
+
+let init3 = function (app_search) {
+
+  app_search.data = {};
+
+  app_search.methods = {};
+
+  app_search.vue = new Vue({
+    el: "#app_search",
+    data: app_search.data,
+    methods: app_search.methods
+  });
+
+  app_search.init3 = () => {
+
+  };
+
+  app_search.init3();
+};
+
+init3(app_search);
+
+//Gets buttons to be visible when burger icon is present for small devices
+window.addEventListener("resize", (event) => {
+  if(window.innerWidth > 1024){
+    document.getElementById('view_one').classList.add('is-inverted');
+    document.getElementById('view_two').classList.add('is-inverted');
+    document.getElementById('view_three').classList.add('is-inverted');
+  }
+  else{
+    document.getElementById('view_one').classList.remove('is-inverted');
+    document.getElementById('view_two').classList.remove('is-inverted');
+    document.getElementById('view_three').classList.remove('is-inverted');
+  }
+}, true);
+
+window.dispatchEvent(new Event("resize"));
