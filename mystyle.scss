@@ -1,14 +1,16 @@
 @charset "utf-8";
 
 // Import a Google Font
-@import url('https://fonts.googleapis.com/css?family=Nunito:400,700');
+@import url('https://fonts.googleapis.com/css?family=Space+Mono:400,700');
 
 // Set your brand colors
-$cyan: #119DA4;
-$cerulean: #0C7489;
-$midnight_green: #13505B;
-$orange: #E53D00;
+$pink: #f72585;
+$purple: #7209b7;
+$indigo: #3a0ca3;
+$blue: #4361ee;
+$light-blue: #4cc9f0;
 $seasalt: #F7F9F9;
+$azure: #ebfaff;
 
 $purple: #8A4D76;
 $pink: #FA7C91;
@@ -17,28 +19,37 @@ $beige-light: #D0D1CD;
 $beige-lighter: #EFF0EB;
 
 // Update Bulma's global variables
-$family-sans-serif: "Nunito", sans-serif;
-$grey-dark: $brown;
-$grey-light: $beige-light;
-$primary: $cyan;
-$link: $cerulean;
-$info: $midnight_green;
-$success: $orange;
+$family-sans-serif: 'Space Mono', sans-serif;
+$primary: $indigo;
+$link: $blue;
+$info: $pink;
+$success: $light-blue;
 
 // Update some of Bulma's component variables
-$body-background-color: $seasalt;
-$control-border-width: 2px;
-$input-border-color: transparent;
-$input-shadow: none;
+$body-background-color: $beige-lighter;
+$input-background-color: $beige-lighter;
+// $control-border-width: 2px;
+// $input-border-color: transparent;
+// $input-shadow: none;
 
 // Import only what you need from Bulma
-@import "bulma/sass/utilities/_all.sass";
 @import "bulma/sass/base/_all.sass";
+@import "bulma/sass/form/_all.sass";
+@import "bulma/sass/layout/_all.sass";
+@import "bulma/sass/utilities/_all.sass";
+@import "bulma/sass/helpers/_all.sass";
+
+@import "bulma/sass/components/card.sass";
+@import "bulma/sass/components/dropdown.sass";
+@import "bulma/sass/components/modal.sass";
+@import "bulma/sass/components/navbar.sass";
+
+@import "bulma/sass/elements/box.sass";
 @import "bulma/sass/elements/button.sass";
 @import "bulma/sass/elements/container.sass";
-@import "bulma/sass/elements/title.sass";
-@import "bulma/sass/form/_all.sass";
-@import "bulma/sass/components/navbar.sass";
-@import "bulma/sass/layout/hero.sass";
-@import "bulma/sass/layout/section.sass";
+@import "bulma/sass/elements/icon.sass";
 @import "bulma/sass/elements/table.sass";
+@import "bulma/sass/elements/title.sass";
+
+@import "bulma/sass/grid/columns.sass";
+@import "bulma/sass/grid/tiles.sass";
