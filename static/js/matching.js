@@ -274,6 +274,10 @@ let init = function (app) {
     app.vue.add_professor_mode = new_status;
   }
 
+  app.toggle_dropdown_menu = function(id) {
+    document.getElementById(id).classList.toggle('is-active');
+  }
+
   app.methods = {
     add_class: app.add_class,
     edit_class: app.edit_class,
@@ -283,6 +287,7 @@ let init = function (app) {
     delete_professor: app.delete_professor,
     set_add_class_status: app.set_add_class_status,
     set_add_professor_status: app.set_add_professor_status,
+    toggle_dropdown_menu: app.toggle_dropdown_menu,
   }
 
   app.vue = new Vue({

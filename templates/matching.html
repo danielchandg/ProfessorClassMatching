@@ -151,15 +151,15 @@
          <table class ="table is-striped is-fullwidth">
             <thead>
                <tr class="is-flex is-justify-content-space-between">
-                  <th v-for="q in quarter_names" class="blue-background has-text-centered":key="q">
+                  <th v-for="q in quarter_names" class="blue-background has-text-centered">
                         {{q}}
                   </th>
                </tr>
 
             </thead>
             <tbody>
-                  <tr v-for="c in classes" :key="c">
-                     <td v-for="field in ['name']" class="row-title" :colspan="num_quarters":key="field">
+                  <tr v-for="c in classes">
+                     <td v-for="field in ['name']" class="row-title" :colspan="num_quarters">
                      
                         {{c[field]}} 
                         
@@ -174,6 +174,27 @@
                                         </div>
 
                                        </div>
+                                    </div>
+                                 </div>
+
+                                 <div class="dropdown" :id="c[field] + q">
+                                    <div class="dropdown-trigger">
+                                       <button class="button is-link" aria-haspopup="true" aria-controls="dropdown-menu3" @click="toggle_dropdown_menu(c[field] + q)">
+                                          <span><i class="fa fa-plus"> Add Professor</i></span>
+                                          <span class="icon is-small">
+                                             <i class="fa fa-angle-down" aria-hidden="true"></i>
+                                           </span>
+                                       </button>
+                                    </div>
+                                    <div class="dropdown-menu" id="dropdown-menu3" role="menu">
+                                      <div class="dropdown-content">
+                                        <div class="dropdown-item">
+                                          <p>Item 1</p>
+                                        </div>
+                                        <div class="dropdown-item">
+                                          <p>Item 2</p>
+                                        </div>
+                                      </div>
                                     </div>
                                  </div>
                               </td>
