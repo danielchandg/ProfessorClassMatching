@@ -27,8 +27,8 @@
    <div v-if="view === 1">
       <h1 class="title">This is view 1</h1>
 
-      <p>{{matching_name}}</p>
-      <p>There are {{num_quarters}} quarters with names: {{quarter_names}}</p>
+      <h2 class="subtitle">This is matching {{matching_name}}</h2>
+      <h2 class="subtitle">There are {{num_quarters}} quarters with names: {{quarter_names}}</h2>
 
       <div v-if="add_class_mode" class="container block">
          <div class="title">Add Class</div>
@@ -46,7 +46,8 @@
                </div>
             </div>
             <label class="label">Number of sections:</label>
-            <div v-for="(_, idx) in add_class_num_sections" class="field">
+            <div v-for="(q, idx) in quarter_names" class="field">
+               <label class="label">{{q}}</label>
                <div class="control">
                   <input type="number" v-model="add_class_num_sections[idx]" class="input">
                </div>
@@ -71,13 +72,13 @@
                <th>Created on</th>
                <th></th>
             </tr>
-            <tr v-for="c in classes">
+            <tr v-for="(c, idx) in classes">
                <td
                   v-for="field in ['id', 'name', 'description', 'num_sections', 'created_on']">
                   {{c[field]}}
                </td>
                <td>
-                  <button @click="delete_class(c._idx)" class="button is-danger">
+                  <button @click="delete_class(idx)" class="button is-danger">
                      <i class="fa fa-trash"></i></button>
                   <button @click="" class="button is-warning">
                      <i class="fa fa-edit"></i></button>
@@ -105,6 +106,14 @@
                   <input type="text" v-model="add_professor_description" class="input">
                </div>
             </div>
+            <div v-for="(q, idx) in quarter_names" class="field">
+               <label class="label">{{q}}</label>
+               <div class="select is-multiple">
+                  <select multiple v-model="add_professor_classes[idx]">
+                     <option v-for="c in classes" :value="c.id">{{ c.name }}</option>
+                  </select>
+               </div>
+            </div>
             <div class="field">
                <div class="control">
                   <input type="submit" @click="add_professor()" value="Add" class="button is-primary">
@@ -125,13 +134,13 @@
                <th>Created on</th>
                <th></th>
             </tr>
-            <tr v-for="p in professors">
+            <tr v-for="(p, idx) in professors">
                <td
                   v-for="field in ['id', 'name', 'description', 'requested_classes', 'created_on']">
                   {{p[field]}}
                </td>
                <td>
-                  <button @click="delete_professor(p._idx)" class="button is-danger">
+                  <button @click="delete_professor(idx)" class="button is-danger">
                      <i class="fa fa-trash"></i></button>
                   <button @click="" class="button is-warning">
                      <i class="fa fa-edit"></i></button>
@@ -142,6 +151,74 @@
             <i class="fa fa-plus fa-fw"></i> Add Professor
          </button>
       </div>
+
+      <div class="container block">
+         <div v-if="add_match_mode" class="container block">
+            <div class="title">Add Match</div>
+            <div class="form">
+               <div class="field">
+                  <label class="label">Class:</label>
+                  <div class="select">
+                     <select v-model="add_match_class">
+                        <option v-for="(c, idx) in classes" :value="idx">{{ c.name }}</option>
+                     </select>
+                  </div>
+               </div>
+               <div class="field">
+                  <label class="label">Professor:</label>
+                  <div class="select">
+                     <select v-model="add_match_professor">
+                        <option v-for="(p, idx) in professors" :value="idx">{{ p.name }}</option>
+                     </select>
+                  </div>
+               </div>
+               <div class="field">
+                  <label class="label">Quarter:</label>
+                  <div class="select">
+                     <select v-model="add_match_quarter">
+                        <option v-for="(q, idx) in quarter_names" :value="idx">{{ q }}</option>
+                     </select>
+                  </div>
+               </div>
+               <div class="field">
+                  <div class="control">
+                     <input type="submit" @click="add_match()" value="Add" class="button is-primary">
+                     <input type="submit" @click="set_add_match_status(false)" value="Cancel" class="button is-warning">
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <div class="container block">
+         <h1 class="title">Matches</h1>
+         <table class="table is-striped is-fullwidth">
+            <tr>
+               <th>ID</th>
+               <th>Class ID</th>
+               <th>Professor ID</th>
+               <th>Quarter</th>
+               <th>Created on</th>
+               <th></th>
+            </tr>
+            <tr v-for="(m, idx) in matches">
+               <td
+                  v-for="field in ['id', 'class_id', 'professor_id', 'quarter', 'created_on']">
+                  {{m[field]}}
+               </td>
+               <td>
+                  <button @click="delete_match(idx)" class="button is-danger">
+                     <i class="fa fa-trash"></i></button>
+                  <button @click="" class="button is-warning">
+                     <i class="fa fa-edit"></i></button>
+               </td>
+            </tr>
+         </table>
+         <button @click="set_add_match_status(true)" class="button is-primary">
+            <i class="fa fa-plus fa-fw"></i> Add Match
+         </button>
+      </div>
+
    </div>
 
    <div v-if="view === 2">
@@ -245,6 +322,8 @@
    const delete_class_url = "[[=XML(delete_class_url)]]";
    const add_professor_url = "[[=XML(add_professor_url)]]";
    const delete_professor_url = "[[=XML(delete_professor_url)]]";
+   const add_match_url = "[[=XML(add_match_url)]]";
+   const delete_match_url = "[[=XML(delete_match_url)]]";
 </script>
 <script src="js/matching.js"></script>
 [[end]]

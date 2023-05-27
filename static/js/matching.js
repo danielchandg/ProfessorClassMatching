@@ -22,19 +22,17 @@ let init = function (app) {
     add_professor_description: '',
     add_professor_classes: [],
     add_professor_mode: false,
+    add_match_class: -1,
+    add_match_professor: -1,
+    add_match_quarter: -1,
+    add_match_mode: false,
     search_class: '',
     search_professor: '',
   };
 
-  app.enumerate = function (a) {
-    // This adds an _idx field to each element of the array.
-    let k = 0;
-    a.map((e) => { e._idx = k++; });
-    return a;
-  };
-
-  // TODO
-  // Improve frontend form to add a class, currently can't modify # of sections
+  // This function is called to add a class.
+  // app.vue.add_class_name is the name of the class.
+  // app.vue.add_class_description is the description of the class.
   app.add_class = function () {
     const name = app.vue.add_class_name;
     const description = app.vue.add_class_description;
@@ -50,7 +48,6 @@ let init = function (app) {
     console.log(`Adding class ${name}`);
     app.vue.classes.push({
       id: -1,
-      _idx: app.vue.classes.length,
       name: name,
       description: description,
       num_sections: num_sections,
@@ -92,15 +89,13 @@ let init = function (app) {
     for (let i = app.vue.classes.length - 1; i >= 0; i--) {
       if (app.vue.classes[i].name === name) {
         app.vue.classes.splice(i, 1);
-        for(let j = i; j < app.vue.classes.length; j++) {
-          app.vue.classes[j]._idx = j;
-        }
         return true;
       }
     }
     return false;
   }
 
+  // This function resets the form to add a class.
   app.reset_class_form = function () {
     app.vue.add_class_name = `Class ${app.vue.classes.length + 1}`;
     app.vue.add_class_description = '';
@@ -115,7 +110,8 @@ let init = function (app) {
 
   }
 
-  // Done
+  // This function is called to delete a class.
+  // 'idx' is the index (0-indexed) of the class in app.vue.classes
   app.delete_class = function (idx) {
     const id = app.vue.classes[idx].id;
     const name = app.vue.classes[idx].name;
@@ -135,11 +131,30 @@ let init = function (app) {
       id: id
     }).then(function (response) {
       console.log(`Deleted class ${name}`);
+
+      // Delete matches that contain this class.
+      for (let i=0; i<app.vue.matches.length; i++) {
+        if(app.vue.matches[i].class_id === id) {
+          app.vue.matches.splice(i, 1);
+          i--;
+        }
+      }
+
+      // Delete class requests that are of this class.
+      for (let i=0; i<app.vue.professors.length; i++) {
+        for (let j=0; j<app.vue.num_quarters; j++) {
+          for (let k=0; k<app.vue.professors[i].requested_classes[j].length; k++) {
+            if (app.vue.professors[i].requested_classes[j][k] === id) {
+              app.vue.professors[i].requested_classes[j].splice(k, 1);
+              k--;
+            }
+          }
+        }
+      }
     }).catch(function (error) {
       console.error(`Error when deleting class ${name}:`, error);
       app.vue.classes.push({
         id: id,
-        _idx: app.vue.classes.length,
         name: name,
         description: description,
         num_sections: num_sections,
@@ -148,15 +163,22 @@ let init = function (app) {
     });
   }
 
-
-  // TODO
-  // Write Vue function app.add_professor
-  // Write controller function add_professor
-  // Add frontend URL, form, & button
+  // This function is called to add a professor.
+  // app.vue.add_professor_name is the name of the professor.
+  // app.vue.add_professor_description is the description of the professor.
+  // app.vue.add_professor_classes are the classes requested by the professor for each quarter.
   app.add_professor = function () {
     const name = app.vue.add_professor_name;
     const description = app.vue.add_professor_description;
     const requested_classes = app.vue.add_professor_classes;
+    for (let i=0; i<app.vue.num_quarters; i++) {
+      for (let j=0; j<requested_classes[i].length; j++) {
+        if (requested_classes[i][j] < 0) {
+          console.log(`Unable to add professor with requested class #${requested_classes[i][j]}`);
+          return;
+        }
+      }
+    }
     if (name === '') {
       console.error('Professor must have name');
       return;
@@ -165,7 +187,6 @@ let init = function (app) {
     console.log(`Adding professor ${name}`);
     app.vue.professors.push({
       id: -1,
-      _idx: app.vue.professors.length,
       name: name,
       description: description,
       requested_classes: requested_classes,
@@ -207,15 +228,13 @@ let init = function (app) {
     for (let i = app.vue.professors.length - 1; i >= 0; i--) {
       if (app.vue.professors[i].name === name) {
         app.vue.professors.splice(i, 1);
-        for(let j = i; j < app.vue.professors.length; j++) {
-          app.vue.professors[j]._idx = j;
-        }
         return true;
       }
     }
     return false;
   }
 
+  // This function resets the form to add a professor.
   app.reset_professor_form = function () {
     app.vue.add_professor_name = `Professor ${app.vue.professors.length + 1}`;
     app.vue.add_professor_description = '';
@@ -230,10 +249,8 @@ let init = function (app) {
 
   }
 
-  // TODO
-  // Write Vue function app.delete_professor
-  // Write controller function delete_professor
-  // Add frontend URL & button
+  // This function is called to delete a professor.
+  // 'idx' is the index (0-indexed) of the professor in app.vue.professors
   app.delete_professor = function (idx) {
     const id = app.vue.professors[idx].id;
     const name = app.vue.professors[idx].name;
@@ -253,11 +270,18 @@ let init = function (app) {
       id: id
     }).then(function (response) {
       console.log(`Deleted professor ${name}`);
+
+      // Delete matches that contain this professor.
+      for (let i=0; i<app.vue.matches.length; i++) {
+        if(app.vue.matches[i].professor_id === id) {
+          app.vue.matches.splice(i, 1);
+          i--;
+        }
+      }
     }).catch(function (error) {
       console.error(`Error when deleting professor ${name}:`, error);
       app.vue.professors.push({
         id: id,
-        _idx: app.vue.professors.length,
         name: name,
         description: description,
         requested_classes: requested_classes,
@@ -266,12 +290,135 @@ let init = function (app) {
     });
   }
 
+  // This function is called to add a match.
+  // app.vue.add_match_class is the index of the class in app.vue.classes.
+  // app.vue.add_match_professor is the index of the professor in app.vue.professors.
+  // app.vue.add_match_quarter is the index of the quarter in app.vue.quarter_names.
+  app.add_match = function () {
+    if(app.vue.add_match_class < 0) {
+      console.error('Class is required');
+      return;
+    }
+    if(app.vue.add_match_professor < 0) {
+      console.error('Professor is required');
+      return;
+    }
+    if(app.vue.add_match_quarter < 0) {
+      console.error('Quarter is required');
+      return;
+    }
+    const Class = app.vue.classes[app.vue.add_match_class];
+    const Professor = app.vue.professors[app.vue.add_match_professor];
+    const Quarter = app.vue.add_match_quarter;
+    const curTime = new Date();
+    if(Class.id < 0){
+      console.error(`Unable to add match to class ${Class.id}`);
+      return;
+    }
+    if(Professor.id < 0){
+      console.error(`Unable to add match to professor ${Professor.id}`);
+      return;
+    }
+    console.log(`Adding match: [${Professor.name}, ${Class.name}] in ${app.vue.quarter_names[Quarter]}`);
+    app.vue.matches.push({
+      id: -1,
+      class_id: Class.id,
+      professor_id: Professor.id,
+      quarter: Quarter,
+      created_on: curTime.toString()
+    });
+    app.reset_match_form();
+    app.vue.add_match_mode = false;
+    axios.post(add_match_url, {
+      class_id: Class.id,
+      professor_id: Professor.id,
+      quarter: Quarter,
+      created_on: curTime.toString()
+    }).then(function (response) {
+      console.log(`Added match: [${Professor.name}, ${Class.name}] in ${app.vue.quarter_names[Quarter]}`);
+      if(!app.update_local_match(Class.id, Professor.id, response.data.id)) {
+        console.error(`After adding match, unable to add ID ${response.data.id}`);
+      }
+    }).catch(function (error) {
+      console.error(`Error when adding match ${Professor.name} & ${Class.name}:`, error);
+      if(!app.remove_local_match(Class.id, Professor.id)) {
+        console.error(`Error when un-adding match ${Professor.name} & ${Class.name}, not found`);
+      }
+    });
+  }
+
+  // Given the match's class id, professor id, and id, update its ID in app.vue.matches
+  app.update_local_match = function (class_id, professor_id, id) {
+    for(let i = app.vue.matches.length - 1; i >= 0; i--) {
+      if(app.vue.matches[i].class_id === class_id && app.vue.matches[i].professor_id === professor_id) {
+        app.vue.matches[i].id = id;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Given the match's class id and professor id, removes it from app.vue.matches
+  app.remove_local_match = function (class_id, professor_id) {
+    for (let i = app.vue.matches.length - 1; i >= 0; i--) {
+      if(app.vue.matches[i].class_id === class_id && app.vue.matches[i].professor_id === professor_id) {
+        app.vue.matches.splice(i, 1);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // This function is called to delete a match.
+  // 'idx' is the index (0-indexed) of the match in app.vue.matches
+  app.delete_match = function (idx) {
+    const id = app.vue.matches[idx].id;
+    const class_id = app.vue.matches[idx].class_id;
+    const professor_id = app.vue.matches[idx].professor_id;
+    const quarter = app.vue.matches[idx].quarter;
+    const created_on = app.vue.matches[idx].created_on;
+    if(id < 0) {
+      console.error(`Unable to delete Match [class #${class_id}, prof #${professor_id}]`);
+      return;
+    }
+    if(!app.remove_local_match(class_id, professor_id)){
+      console.error(`Error when deleting Match [class #${class_id}, prof #${professor_id}]: Not found`);
+      return;
+    }
+
+    axios.post(delete_match_url, {
+      id: id
+    }).then(function (response) {
+      console.log(`Deleted match [class #${class_id}, prof #${professor_id}]`);
+    }).catch(function (error) {
+      console.error(`Error when deleting match [class #${class_id}, prof #${professor_id}]:`, error);
+      app.vue.matches.push({
+        id: id,
+        class_id: class_id,
+        professor_id: professor_id,
+        quarter: quarter,
+        created_on: created_on
+      });
+    });
+  }
+
+  // This function resets the form to add a professor.
+  app.reset_match_form = function () {
+    app.vue.add_match_class = -1;
+    app.vue.add_match_professor = -1;
+    app.vue.add_match_quarter = -1;
+  }
+
   app.set_add_class_status = (new_status) => {
     app.vue.add_class_mode = new_status;
   }
 
   app.set_add_professor_status = (new_status) => {
     app.vue.add_professor_mode = new_status;
+  }
+
+  app.set_add_match_status = (new_status) => {
+    app.vue.add_match_mode = new_status;
   }
 
   app.methods = {
@@ -283,6 +430,9 @@ let init = function (app) {
     delete_professor: app.delete_professor,
     set_add_class_status: app.set_add_class_status,
     set_add_professor_status: app.set_add_professor_status,
+    set_add_match_status: app.set_add_match_status,
+    add_match: app.add_match,
+    delete_match: app.delete_match
   }
 
   app.vue = new Vue({
@@ -291,8 +441,7 @@ let init = function (app) {
     methods: app.methods
   });
 
-  // TODO
-  // Write controller function load_my_matching
+  // This function is called to fetch all the details of the matching.
   app.init = () => {
     axios.get(load_my_matching_url).then((response) => {
       app.vue.matching_name = response.data.matching_name;
@@ -300,15 +449,16 @@ let init = function (app) {
       app.vue.num_quarters = response.data.num_quarters;
       app.vue.quarter_names = response.data.quarter_names;
       
-      app.vue.classes = app.enumerate(response.data.classes);
-      app.vue.professors = app.enumerate(response.data.professors);
-      app.vue.matches = app.enumerate(response.data.matches);
-      
+      app.vue.classes = response.data.classes;
+      app.vue.professors = response.data.professors;
+      app.vue.matches = response.data.matches;
+
       app.reset_class_form();
       app.reset_professor_form();
+      app.reset_match_form();
     }).catch((error) => {
       console.error('Failed to load my matching:', error);
-    })
+    });
   };
 
   app.init();

@@ -29,7 +29,7 @@ db.define_table('settings',
 # Note one user can create multiple matchings.
 db.define_table('matchings',
                 Field('user_id', 'reference auth_user', default=get_user_id),
-                Field('name', required=True),
+                Field('name'),
                 Field('description'),
                 Field('num_quarters', 'integer', requires=IS_INT_IN_RANGE(1, 100)), # Number of quarters in this matching
                 Field('quarter_names', 'list:string'), # List of quarter names for this matching
@@ -38,7 +38,7 @@ db.define_table('matchings',
 
 # This table stores all classes of all matchings of all users.
 db.define_table('classes',
-                Field('name', required=True),
+                Field('name'),
                 Field('matching_id', 'reference matchings'),
                 Field('description'),
                 Field('num_sections', 'list:integer'), # Number of sections for this class in each quarter
@@ -47,7 +47,10 @@ db.define_table('classes',
 
 # This table stores all professors of all matchings of all users.
 db.define_table('professors',
-                Field('name', required=True),
+                # This is 'name_' instead of 'name' because py4web was throwing this error for some reason:
+                ### sqlite3.IntegrityError: UNIQUE constraint failed: professors.name ###
+                # Even though 'name' was working for both db.matchings and db.classes
+                Field('name_'),
                 Field('matching_id', 'reference matchings'),
                 Field('description'),
                 Field('time_created')
