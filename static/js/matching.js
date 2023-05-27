@@ -3,8 +3,10 @@ let app = {};
 // Creates & initializes a Vue instance
 let init = function (app) {
   app.data = {
+    // for accordions to work
     left_sel: 0,
     right_sel: 0,
+
     // Details about this matching
     matching_name: '',
     matching_description: '',

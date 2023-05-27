@@ -24,31 +24,129 @@
 </style>
 
 <div class="section" id="vue-target" v-cloak>
-   <p>{{matching_name}}</p>
-   <p>There are {{num_quarters}} quarters with names: {{quarter_names}}</p>
-
    <div v-if="view === 1">
       <h1 class="title">This is view 1</h1>
 
       <div class="columns">
          <div class="column">
+            <h1 class="title">Classes</h1>
             <div v-for="c in classes" class="panel">
                <div class="panel-heading" @click="left_sel == c.id ? left_sel = 0 : left_sel = c.id">
                   {{c.name}}
                </div>
                <div class="panel-block" v-show="left_sel == c.id">
-                  Content Body #1
+                  <div class="columns control is-mobile">
+                     <div class="column is-2">
+                        <input class="input is-static has-text-weight-bold" value="Quarter" readonly>
+                        <input v-for="quarter in ['Fall', 'Winter', 'Spring', 'Summer']" class="input is-static" :value="quarter" readonly>
+                     </div>
+                     <div class="column is-2">
+                        <input class="input is-static has-text-weight-bold" value="Sections" readonly>
+                        <input v-for="i in [0,1,2,3]" class="input" type="text" v-model="c.num_sections[i]">
+                     </div>
+                     <div class="column">
+                        <button @click="delete_class(c._idx)" class="button is-danger is-pulled-right">
+                           <span class="icon"><i class="fa fa-trash"></i></span><span>Remove Class</span>
+                        </button>
+                     </div>
+                  </div>
                </div>
+            </div>
+            <button class="button is-primary" @click="set_add_class_status(true)">
+               <span class="icon"><i class="fa fa-plus-circle"></i></span><span> Add Class</span>
+            </button>
+            <div class="modal" :class="{ 'is-active': add_class_mode }">
+               <div class="modal-background"></div>
+               <div class="modal-content">
+                  <div class="box">
+                     <div class="title">Add Class</div>
+                     <div class="form">
+                        <div class="field">
+                           <label class="label">Name:</label>
+                           <div class="control">
+                              <input type="text" v-model="add_class_name" class="input">
+                           </div>
+                        </div>
+                        <div class="field">
+                           <label class="label">Description:</label>
+                           <div class="control">
+                              <input type="text" v-model="add_class_description" class="input">
+                           </div>
+                        </div>
+                        <label class="label">Number of sections:</label>
+                        <div v-for="(_, idx) in add_class_num_sections" class="field">
+                           <div class="control">
+                              <input type="number" v-model="add_class_num_sections[idx]" class="input">
+                           </div>
+                        </div>
+                        <div class="field">
+                           <div class="control">
+                              <input type="submit" @click="add_class()" value="Add" class="button is-primary">
+                              <input type="submit" @click="set_add_class_status(false)" value="Cancel"
+                                     class="button is-warning">
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <button class="modal-close is-large" aria-label="close" @click="set_add_class_status(false)"></button>
             </div>
          </div>
          <div class="column">
+            <h1 class="title">Professors</h1>
             <div v-for="p in professors" class="panel">
                <div class="panel-heading" @click="right_sel == p.id ? right_sel = 0 : right_sel = p.id">
                   {{p.name}}
                </div>
                <div class="panel-block" v-show="right_sel == p.id">
-                  Content Body #1
+                  <div class="columns control is-mobile">
+                     <div class="column is-2">
+                        <input class="input is-static has-text-weight-bold" value="Quarter" readonly>
+                        <input v-for="quarter in ['- Fall', '- Winter', '- Spring', '- Summer']" class="input is-static" :value="quarter" readonly>
+                     </div>
+                     <div class="column is-danger is-2">
+                        <input class="input is-static has-text-weight-bold" value="Courses" readonly>
+                     </div>
+                     <div class="column is-warning">
+                        <button @click="delete_professor(p._idx)" class="button is-danger is-pulled-right">
+                           <span class="icon"><i class="fa fa-trash"></i></span><span>Remove Professor</span>
+                        </button>
+                     </div>
+                  </div>
                </div>
+            </div>
+            <button class="button is-primary" @click="set_add_professor_status(true)">
+               <span class="icon"><i class="fa fa-plus-circle"></i></span><span>Add Professor</span>
+            </button>
+            <div class="modal" :class="{ 'is-active': add_professor_mode }">
+               <div class="modal-background"></div>
+               <div class="modal-content">
+                  <div class="box">
+                     <div class="title">Add Professor</div>
+                     <div class="form">
+                        <div class="field">
+                           <label class="label">Name:</label>
+                           <div class="control">
+                              <input type="text" v-model="add_professor_name" class="input">
+                           </div>
+                        </div>
+                        <div class="field">
+                           <label class="label">Description:</label>
+                           <div class="control">
+                              <input type="text" v-model="add_professor_description" class="input">
+                           </div>
+                        </div>
+                        <div class="field">
+                           <div class="control">
+                              <input type="submit" @click="add_professor()" value="Add" class="button is-primary">
+                              <input type="submit" @click="set_add_professor_status(false)" value="Cancel"
+                                     class="button is-warning">
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <button class="modal-close is-large" aria-label="close" @click="set_add_professor_status(false)"></button>
             </div>
          </div>
       </div>
