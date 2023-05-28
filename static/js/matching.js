@@ -314,6 +314,8 @@ let init = function (app) {
     }).catch((error) => {
       console.error('Failed to load my matching:', error);
     })
+
+    document.getElementById('view_one').classList.remove('is-outlined');
   };
 
   app.init();
@@ -330,6 +332,27 @@ let init2 = function (app_view) {
 
   app_view.change_view = (current_view) => {
     app.vue.view = current_view;
+
+    if (current_view == 1){
+      document.getElementById('view_one').classList.remove('is-outlined');
+      document.getElementById('view_two').classList.add('is-outlined');
+      document.getElementById('view_three').classList.add('is-outlined');
+    }
+    else if (current_view == 2){
+      document.getElementById('view_one').classList.add('is-outlined');
+      document.getElementById('view_two').classList.remove('is-outlined');
+      document.getElementById('view_three').classList.add('is-outlined');
+    }
+    else if (current_view == 3){
+      document.getElementById('view_one').classList.add('is-outlined');
+      document.getElementById('view_two').classList.add('is-outlined');
+      document.getElementById('view_three').classList.remove('is-outlined');
+    }
+    else{
+      document.getElementById('view_one').classList.add('is-outlined');
+      document.getElementById('view_two').classList.add('is-outlined');
+      document.getElementById('view_three').classList.add('is-outlined');
+    }
   };
 
   app_view.methods = {
