@@ -159,13 +159,13 @@
             </thead>
             <tbody>
                   <tr v-for="c in classes">
-                     <td v-for="field in ['name']" class="row-title" :colspan="num_quarters">
+                     <td v-for="field in ['name']" class="row-title" :colspan="num_quarters" :key="update_dropdown_menu">
                      
                         {{c[field]}} 
                         
                         <table class="table is-striped is-fullwidth">
                            <tr>
-                              <td v-for="q in quarter_names" style="text-align: center; background-color: wheat;">
+                              <td v-for="q in quarter_names" style="text-align: center; background-color: wheat;"  @mouseover="hover_dropdown_menu(c.id + q)" @mouseleave="unhover_dropdown_menu(c.id + q)">
                                  <div class="tile is-ancestor">
                                     <div class="tile"> 
                                        <div class="tile is-parent is-vertical">
@@ -182,24 +182,26 @@
                                     </div>
                                  </div>
 
-                                 <div class="dropdown" :id="c[field] + q">
-                                    <div class="dropdown-trigger">
-                                       <button class="button is-link" aria-haspopup="true" aria-controls="dropdown-menu3" @click="toggle_dropdown_menu(c[field] + q)">
-                                          <span><i class="fa fa-plus"> Add Professor</i></span>
-                                          <span class="icon is-small">
-                                             <i class="fa fa-angle-down" aria-hidden="true"></i>
-                                           </span>
-                                       </button>
-                                    </div>
-                                    <div class="dropdown-menu" id="dropdown-menu3" role="menu">
-                                      <div class="dropdown-content">
-                                        <div class="dropdown-item">
-                                          <p>Item 1</p>
-                                        </div>
-                                        <div class="dropdown-item">
-                                          <p>Item 2</p>
-                                        </div>
-                                      </div>
+                                 <div v-if="hovered_class_term[c.id + q]">
+                                    <div class="dropdown" @mouseover="dropdown_hover = true" @mouseout="dropdown_hover = false" :class="{ 'is-active': dropdown_hover}">
+                                       <div class="dropdown-trigger">
+                                          <button class="button is-link" aria-haspopup="true" aria-controls="dropdown-menu3">
+                                             <span><i class="fa fa-plus"> Add Professor</i></span>
+                                             <span class="icon is-small">
+                                                <i class="fa fa-angle-down" aria-hidden="true"></i>
+                                             </span>
+                                          </button>
+                                       </div>
+                                       <div class="dropdown-menu" id="dropdown-menu3" role="menu">
+                                       <div class="dropdown-content">
+                                          <div class="dropdown-item">
+                                             <p>Item 1</p>
+                                          </div>
+                                          <div class="dropdown-item">
+                                             <p>Item 2</p>
+                                          </div>
+                                       </div>
+                                       </div>
                                     </div>
                                  </div>
                               </td>

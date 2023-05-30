@@ -24,6 +24,9 @@ let init = function (app) {
     add_professor_mode: false,
     search_class: '',
     search_professor: '',
+    hovered_class_term: {},
+    update_dropdown_menu: 0,
+    dropdown_hover: false,
   };
 
   app.enumerate = function (a) {
@@ -274,8 +277,26 @@ let init = function (app) {
     app.vue.add_professor_mode = new_status;
   }
 
-  app.toggle_dropdown_menu = function(id) {
-    document.getElementById(id).classList.toggle('is-active');
+  app.hover_dropdown_menu = function(id){
+    app.vue.hovered_class_term[id] = true;
+    app.force_update_dropdown_menu();
+  }
+
+  app.unhover_dropdown_menu = function(id){
+    app.vue.hovered_class_term[id] = false;
+    app.force_update_dropdown_menu();
+  }
+
+  app.initialize_hover = function(){
+    for(c in app.vue.classes){
+      for(q in app.vue.quarter_names){
+        app.vue.hovered_class_term[app.vue.classes[c].id + app.vue.quarter_names[q]] = false;
+      }
+    };
+  }
+
+  app.force_update_dropdown_menu = function(){
+    app.vue.update_dropdown_menu += 1;
   }
 
   app.methods = {
@@ -287,7 +308,10 @@ let init = function (app) {
     delete_professor: app.delete_professor,
     set_add_class_status: app.set_add_class_status,
     set_add_professor_status: app.set_add_professor_status,
-    toggle_dropdown_menu: app.toggle_dropdown_menu,
+    hover_dropdown_menu: app.hover_dropdown_menu,
+    unhover_dropdown_menu: app.unhover_dropdown_menu,
+    initialize_hover: app.initialize_hover,
+    force_update_dropdown_menu: app.force_update_dropdown_menu,
   }
 
   app.vue = new Vue({
@@ -311,6 +335,7 @@ let init = function (app) {
       
       app.reset_class_form();
       app.reset_professor_form();
+      app.initialize_hover();
     }).catch((error) => {
       console.error('Failed to load my matching:', error);
     })
