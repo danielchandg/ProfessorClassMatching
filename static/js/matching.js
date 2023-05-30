@@ -31,6 +31,9 @@ let init = function (app) {
     add_match_mode: false,
     search_class: '',
     search_professor: '',
+    hovered_class_term: {},
+    update_dropdown_menu: 0,
+    dropdown_hover: false,
   };
 
   // This function is called to add a class.
@@ -423,6 +426,28 @@ let init = function (app) {
   app.set_add_match_status = (new_status) => {
     app.vue.add_match_mode = new_status;
   }
+  
+  app.hover_dropdown_menu = function(id){
+    app.vue.hovered_class_term[id] = true;
+    app.force_update_dropdown_menu();
+  }
+
+  app.unhover_dropdown_menu = function(id){
+    app.vue.hovered_class_term[id] = false;
+    app.force_update_dropdown_menu();
+  }
+
+  app.initialize_hover = function(){
+    for(c in app.vue.classes){
+      for(q in app.vue.quarter_names){
+        app.vue.hovered_class_term[app.vue.classes[c].id + app.vue.quarter_names[q]] = false;
+      }
+    };
+  }
+
+  app.force_update_dropdown_menu = function(){
+    app.vue.update_dropdown_menu += 1;
+  }
 
   app.methods = {
     add_class: app.add_class,
@@ -435,7 +460,11 @@ let init = function (app) {
     set_add_professor_status: app.set_add_professor_status,
     set_add_match_status: app.set_add_match_status,
     add_match: app.add_match,
-    delete_match: app.delete_match
+    delete_match: app.delete_match,
+    hover_dropdown_menu: app.hover_dropdown_menu,
+    unhover_dropdown_menu: app.unhover_dropdown_menu,
+    initialize_hover: app.initialize_hover,
+    force_update_dropdown_menu: app.force_update_dropdown_menu,
   }
 
   app.vue = new Vue({
@@ -459,9 +488,12 @@ let init = function (app) {
       app.reset_class_form();
       app.reset_professor_form();
       app.reset_match_form();
+      app.initialize_hover();
     }).catch((error) => {
       console.error('Failed to load my matching:', error);
-    });
+    })
+
+    document.getElementById('view_one').classList.remove('is-outlined');
   };
 
   app.init();
@@ -478,6 +510,27 @@ let init2 = function (app_view) {
 
   app_view.change_view = (current_view) => {
     app.vue.view = current_view;
+
+    if (current_view == 1){
+      document.getElementById('view_one').classList.remove('is-outlined');
+      document.getElementById('view_two').classList.add('is-outlined');
+      document.getElementById('view_three').classList.add('is-outlined');
+    }
+    else if (current_view == 2){
+      document.getElementById('view_one').classList.add('is-outlined');
+      document.getElementById('view_two').classList.remove('is-outlined');
+      document.getElementById('view_three').classList.add('is-outlined');
+    }
+    else if (current_view == 3){
+      document.getElementById('view_one').classList.add('is-outlined');
+      document.getElementById('view_two').classList.add('is-outlined');
+      document.getElementById('view_three').classList.remove('is-outlined');
+    }
+    else{
+      document.getElementById('view_one').classList.add('is-outlined');
+      document.getElementById('view_two').classList.add('is-outlined');
+      document.getElementById('view_three').classList.add('is-outlined');
+    }
   };
 
   app_view.methods = {
