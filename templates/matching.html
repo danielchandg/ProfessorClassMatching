@@ -396,9 +396,9 @@
                                  <div class="tile is-ancestor">
                                     <div class="tile"> 
                                        <div class="tile is-parent is-vertical">
-                                        <div class="tile is-child box notification custom-tile"> 
-                                             <p>{{add_professor_name}}</p>
-                                             <button class="button is-danger"> <!---@click="delete_matching"-->
+                                        <div class="tile is-child box notification custom-tile" v-for="p in professors"> 
+                                             <p>{{p.name}}</p>
+                                             <button class="button is-danger" @click="delete_match"> <!---@click="delete_matching"-->
                                                 <span class="icon is-small">
                                                    <i class="fa fa-times"></i>
                                                  </span>
