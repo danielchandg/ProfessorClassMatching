@@ -31,7 +31,7 @@ let init = function (app) {
     add_match_mode: false,
     search_class: '',
     search_professor: '',
-    hovered_class_term: -1,
+    hovered_class_term: {},
     update_dropdown_menu: 0,
     dropdown_hover: false,
   };
