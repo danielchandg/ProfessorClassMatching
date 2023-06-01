@@ -8,6 +8,11 @@ let init = function (app) {
     add_matching_description: '',
     add_matching_num_quarters: 0, // Number of quarters
     add_mode: false, // Is the user currently adding a matching?
+    edit_matching_name: '', // Name of the matching being edited
+    edit_matching_description: '', // Description of the matching being edited
+    edit_matching_num_quarters: 0, // Number of quarters of the matching being edited
+    editing_index: -1,
+    edit_mode:false, // Is the user currently editing a matching?
   };
 
   app.enumerate = function (a) {
@@ -164,8 +169,43 @@ let init = function (app) {
   // Add button
   // Write controller function
   app.edit_matching = function (idx) {
-
+    const matching = app.vue.matchings[idx];
+    app.vue.edit_matching_name = matching.name;
+    app.vue.edit_matching_description = matching.description;
+    app.vue.edit_matching_num_quarters = matching.num_quarters;
+    app.vue.editing_index = idx;
+    app.vue.edit_mode = true;
   }
+
+  app.save_matching = function() {
+    const name = app.vue.edit_matching_name;
+    const description = app.vue.edit_matching_description;
+    const num_quarters = app.vue.edit_matching_num_quarters;
+    if(name == '') {
+      console.error('Matching must have a name');
+      return;
+    }
+    if(num_quarters <= 0 || num_quarters >= 100) {
+      console.error('Number of quarters must be in the range [1-99]');
+      return;
+    }
+    const matching = app.vue.matchings[app.vue.editing_index];
+    matching.name = name;
+    matching.description = description;
+    matching.num_quarters = num_quarters;
+    app.set_edit_status(false);
+
+    axios.post(edit_matching_url, {
+      id: matching.id,
+      name: name,
+      description: description,
+      num_quarters: num_quarters
+    }).then(function(response) {
+      console.log(`Updated matching ${name}`);
+    }).catch(function(error) {
+      console.error('Error saving the edited matching', error);
+    })
+  };
 
   // Done
   app.delete_matching = function (idx) {
@@ -210,14 +250,20 @@ let init = function (app) {
     app.vue.add_mode = new_status;
   }
 
+  app.set_edit_status = (new_status) => {
+    app.vue.edit_mode = new_status;
+  }
+
   app.methods = {
     add_matching: app.add_matching, // Done
     goto_matching: app.goto_matching, // Done
-    edit_matching: app.edit_matching, // TODO
+    edit_matching: app.edit_matching, // Done
     delete_matching: app.delete_matching, // Done
     duplicate_matching: app.duplicate_matching, // In progress
     set_add_status: app.set_add_status,
-    parseDate: app.parseDate
+    parseDate: app.parseDate,
+    set_edit_status: app.set_edit_status,
+    save_matching: app.save_matching,
   }
 
   app.vue = new Vue({
