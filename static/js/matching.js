@@ -428,13 +428,17 @@ let init = function (app) {
   }
   
   app.hover_dropdown_menu = function(id){
-    app.vue.hovered_class_term[id] = true;
-    app.force_update_dropdown_menu();
+    if (!app.vue.hovered_class_term[id]){
+      app.vue.hovered_class_term[id] = true;
+      app.force_update_dropdown_menu();
+    }
   }
 
   app.unhover_dropdown_menu = function(id){
-    app.vue.hovered_class_term[id] = false;
-    app.force_update_dropdown_menu();
+    if (app.vue.hovered_class_term[id]){
+      app.vue.hovered_class_term[id] = false;
+      app.force_update_dropdown_menu();
+    }
   }
 
   app.initialize_hover = function(){
