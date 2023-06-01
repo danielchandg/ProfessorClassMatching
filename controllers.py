@@ -41,6 +41,7 @@ def index():
     return dict(
         load_matchings_url = URL('load_matchings', signer=url_signer),
         add_matching_url = URL('add_matching', signer=url_signer),
+        edit_matching_url = URL('edit_matching', signer=url_signer),
         delete_matching_url = URL('delete_matching', signer=url_signer)
     )
 
@@ -85,6 +86,32 @@ def add_matching():
     my_settings.matching_ids = my_settings.matching_ids + [id]
     my_settings.update_record()
     return dict(id=id)
+
+# This route is for editing a matching
+# Must include matching id
+# Can edit name, description, or number of quarters
+@action('edit_matching', method='POST')
+@action.uses(url_signer.verify(), db, auth.user)
+def edit_matching():
+    id = request.json.get('id') # Database ID
+    name = request.json.get('name')
+    description = request.json.get('description')
+    num_quarters = request.json.get('num_quarters')
+    my_matching = db(db.matchings.id == id).select().first()
+    if name:
+        my_matching.name = name
+    if description:
+        my_matching.description = description
+    if num_quarters:
+        num_quarters = int(num_quarters)
+        if num_quarters < my_matching.num_quarters:
+            my_matching.quarter_names = my_matching.quarter_names[:num_quarters]
+        elif num_quarters > my_matching.num_quarters:
+            for i in range(my_matching.num_quarters + 1, num_quarters + 1):
+                my_matching.quarter_names.append(f'Quarter {i}')
+        my_matching.num_quarters = num_quarters
+    my_matching.update_record()
+    return f'ok updated matching {id}'
 
 # This route is for deleting a matching
 @action('delete_matching', method='POST')
@@ -264,10 +291,27 @@ def add_class(matching_id=None):
     return dict(id=id)
 
 # This route is for editing a class
-@action('edit_class', method='POST')
-@action.uses(url_signer.verify(), db)
-def edit_class():
-    return dict()
+# Must include class id
+# Can edit name, description, or number of sections
+@action('edit_class/<matching_id:int>', method='POST')
+@action.uses(url_signer.verify(), db, auth.user)
+def edit_class(matching_id=None):
+    assert matching_id is not None
+    id = request.json.get('id') # Database ID
+    name = request.json.get('name')
+    description = request.json.get('description')
+    num_sections = request.json.get('num_sections')
+    set_classes = db((db.classes.id == id) & (db.classes.matching_id == matching_id))
+    assert set_classes.count() == 1
+    my_class = set_classes.select().first()
+    if name:
+        my_class.name = name
+    if description:
+        my_class.description = description
+    if num_sections:
+        my_class.num_sections = num_sections
+    my_class.update_record()
+    return f'ok updated class {id}'
 
 # This route is for deleting a class
 @action('delete_class/<matching_id:int>', method='POST')
@@ -302,6 +346,7 @@ def add_professor(matching_id=None):
             my_class = db.classes[class_id]
             assert my_class.matching_id == matching_id
             db.class_requests.insert(
+                matching_id = matching_id,
                 professor_id = professor_id,
                 class_id = class_id,
                 quarter = quarter
@@ -309,14 +354,40 @@ def add_professor(matching_id=None):
     return dict(id=professor_id)
 
 # This route is for editing a professor
-@action('edit_professor', method='POST')
-@action.uses(url_signer.verify(), db)
-def edit_professor():
-    return dict()
+# Must include professor id
+# Can edit name, description, or class requests
+@action('edit_professor/<matching_id:int>', method='POST')
+@action.uses(url_signer.verify(), db, auth.user)
+def edit_professor(matching_id=None):
+    assert matching_id is not None
+    my_matching = db.matchings[matching_id]
+    assert my_matching is not None
+    assert my_matching.user_id == get_user_id()
+    id = request.json.get('id') # Database ID
+    name = request.json.get('name')
+    description = request.json.get('description')
+    class_requests = request.json.get('class_requests')
+    set_professors = db((db.professors.id == id) & (db.professors.matching_id == matching_id))
+    assert set_professors.count() == 1
+    my_professor = set_professors.select().first()
+    if name or description:
+        if name:
+            my_professor.name_ = name
+        if description:
+            my_professor.description = description
+        my_professor.update_record()
+    if class_requests:
+        assert my_matching.num_quarters == len(class_requests)
+        my_requested_classes = my_professor.requested_classes.select()
+        for my_class_request in my_requested_classes:
+            if my_class_request.class_id not in class_requests[my_class_request.quarter]:
+                my_class_request.delete_record()
+
+    return f'ok updated professor {id}'
 
 # This route is for deleting a professor
 @action('delete_professor/<matching_id:int>', method='POST')
-@action.uses(url_signer.verify(), db)
+@action.uses(url_signer.verify(), db, auth.user)
 def delete_professor(matching_id=None):
     assert matching_id is not None
     id = request.json.get('id') # Database ID

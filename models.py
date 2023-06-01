@@ -58,9 +58,10 @@ db.define_table('professors',
 
 # This table stores all requested classes of all professors.
 db.define_table('class_requests',
+                Field('matching_id', 'reference matchings'),
                 Field('professor_id', 'reference professors'),
                 Field('class_id', 'reference classes'),
-                Field('quarter', 'integer')
+                Field('quarter', 'integer') # 0-indexed
                 )
 
 # This table stores all class/professor/quarter matches of all matchings of all users.

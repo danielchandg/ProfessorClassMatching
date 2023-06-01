@@ -12,7 +12,7 @@ let init = function (app) {
     edit_matching_description: '', // Description of the matching being edited
     edit_matching_num_quarters: 0, // Number of quarters of the matching being edited
     editing_index: -1,
-    edit_mode:false, // Is the user currently editing a matching?
+    edit_mode: false, // Is the user currently editing a matching?
   };
 
   app.enumerate = function (a) {
@@ -43,13 +43,8 @@ let init = function (app) {
     }
     const curTime = new Date();
     let quarter_names = [];
-    if (num_quarters <= 4) {
-      quarter_names = ['Fall', 'Winter', 'Spring', 'Summer'].slice(0, num_quarters);
-    }
-    else {
-      for(let i=1; i<=num_quarters; i++) {
-        quarter_names.push(`Quarter ${i}`);
-      }
+    for(let i=1; i<=num_quarters; i++) {
+      quarter_names.push(`Quarter ${i}`);
     }
     console.log(`Adding matching ${name}`);
     app.vue.matchings.push({
@@ -178,6 +173,8 @@ let init = function (app) {
   }
 
   app.save_matching = function() {
+    const i = app.vue.editing_index;
+    const id = app.vue.matchings[i].id;
     const name = app.vue.edit_matching_name;
     const description = app.vue.edit_matching_description;
     const num_quarters = app.vue.edit_matching_num_quarters;
@@ -189,14 +186,16 @@ let init = function (app) {
       console.error('Number of quarters must be in the range [1-99]');
       return;
     }
-    const matching = app.vue.matchings[app.vue.editing_index];
-    matching.name = name;
-    matching.description = description;
-    matching.num_quarters = num_quarters;
+    const old_name = app.vue.matchings[i].name;
+    const old_description = app.vue.matchings[i].description;
+    const old_num_quarters = app.vue.matchings[i].num_quarters;
+    app.vue.matchings[i].name = name;
+    app.vue.matchings[i].description = description;
+    app.vue.matchings[i].num_quarters = num_quarters;
     app.set_edit_status(false);
 
     axios.post(edit_matching_url, {
-      id: matching.id,
+      id: id,
       name: name,
       description: description,
       num_quarters: num_quarters
@@ -204,6 +203,9 @@ let init = function (app) {
       console.log(`Updated matching ${name}`);
     }).catch(function(error) {
       console.error('Error saving the edited matching', error);
+      app.vue.matchings[i].name = old_name;
+      app.vue.matchings[i].description = old_description;
+      app.vue.matchings[i].num_quarters = old_num_quarters;
     })
   };
 
