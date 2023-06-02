@@ -108,12 +108,25 @@ let init = function (app) {
     app.vue.add_class_num_sections = Array(app.vue.num_quarters).fill(0);
   }
 
-  // TODO
-  // Write Vue function app.edit_class
-  // Write controller function edit_class
-  // Add frontend URL & button
   app.edit_class = function (idx) {
+    const id = app.vue.classes[idx].id;
+    const name = app.vue.classes[idx].name;
+    const num_sections = app.vue.classes[idx].num_sections;
+    for (section of num_sections) {
+      if (section === '' || !Number.isInteger(Number(section)) || Number(section) < 0 || Number(section) > 99) {
+        console.log(`Invalid section input for class ${name} with id ${id}`);
+        return;
+      }
+    }
 
+    axios.post(edit_class_url, {
+      id: id,
+      num_sections: num_sections
+    }).then(function (response) {
+      console.log(`Edited class with idx ${idx}`);
+    }).catch(function (error) {
+      console.error(`Error when editing class with idx ${idx}`, error);
+    });
   }
 
   // This function is called to delete a class.

@@ -181,6 +181,7 @@ def matching(my_id=None):
         matching_id=matching_id,
         load_my_matching_url=URL('load_my_matching', matching_id, signer=url_signer),
         add_class_url = URL('add_class', matching_id, signer=url_signer),
+        edit_class_url = URL('edit_class', matching_id, signer=url_signer),
         delete_class_url = URL('delete_class', matching_id, signer=url_signer),
         add_professor_url = URL('add_professor', matching_id, signer=url_signer),
         delete_professor_url = URL('delete_professor', matching_id, signer=url_signer),
@@ -264,10 +265,16 @@ def add_class(matching_id=None):
     return dict(id=id)
 
 # This route is for editing a class
-@action('edit_class', method='POST')
-@action.uses(url_signer.verify(), db)
-def edit_class():
-    return dict()
+@action('edit_class/<matching_id:int>', method='POST')
+@action.uses(url_signer.verify(), db, auth.user)
+def edit_class(matching_id=None):
+    id = request.json.get('id') # Database ID
+    num_sections = request.json.get('num_sections')
+    edit_class = db((db.classes.id == id) & (db.classes.matching_id == matching_id))
+    assert edit_class.count() == 1
+    number_of_records_updated = edit_class.update(num_sections=num_sections)
+    assert number_of_records_updated == 1
+    return f'ok edited class {id}'
 
 # This route is for deleting a class
 @action('delete_class/<matching_id:int>', method='POST')
