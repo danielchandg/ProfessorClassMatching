@@ -394,12 +394,15 @@
                         
                         <table class="table is-striped is-fullwidth">
                            <tr>
-                              <td v-for="q in quarter_names" style="text-align: center; background-color: wheat;">
+                              <td v-for="(q, idx) in quarter_names" style="text-align: center; background-color: wheat;">
                                  <div class="tile is-ancestor">
                                     <div class="tile" @mouseenter="hover_dropdown_menu(c.id + q)" @mouseleave="unhover_dropdown_menu(c.id + q)"> 
                                        <div class="tile is-parent is-vertical">
-                                          <div class="tile is-child box notification custom-tile" v-for="p in professors"> 
-                                                <p>{{p.name}}</p>
+                                          <div class="tile is-child box notification custom-tile">
+                                             <p>_____________</p>
+                                          </div>
+                                          <div class="tile is-child box notification custom-tile" v-for="m in view_2_data[c.id][idx]"> 
+                                                <p>{{m.name}}</p>
                                                 <button class="button is-danger" @click="delete_match"> <!---@click="delete_matching"-->
                                                    <span class="icon is-small">
                                                       <i class="fa fa-times"></i>

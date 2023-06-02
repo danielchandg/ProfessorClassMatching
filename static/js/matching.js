@@ -34,6 +34,18 @@ let init = function (app) {
     hovered_class_term: {},
     update_dropdown_menu: 0,
     dropdown_hover: false,
+    
+    view_2_data: {},
+    // view_2_data is the data used to populate View 2.
+    // view_2_data[class ID]. First key is the class ID.
+    // view_2_data[class ID][quarter idx]. Second key is the quarter number (0-indexed).
+    // view_2_data[class ID][quarter idx] is an array of {id: <professor ID>, name: <professor name>}.
+
+    view_3_data: {},
+    // view_3_data is the data used to populate View 3.
+    // view_3_data[professor ID]. First key is the professor ID.
+    // view_3_data[professor ID][quarter idx]. Second key is the quarter number (0-indexed).
+    // view_3_data[professor ID][quarter idx] is an array of {id: <class ID>, name: <class name>}.
   };
 
   // This function is called to add a class.
@@ -506,6 +518,44 @@ let init = function (app) {
       app.reset_professor_form();
       app.reset_match_form();
       app.initialize_hover();
+
+      app.vue.view_2_data = {};
+      app.vue.view_3_data = {};
+      let class_id_to_name = {};
+      app.vue.classes.forEach((c) => {
+        app.vue.view_2_data[c.id] = Array.from(Array(app.vue.num_quarters), () => []);
+        class_id_to_name[c.id] = c.name;
+      });
+      let professor_id_to_name = {};
+      app.vue.professors.forEach((p) => {
+        app.vue.view_3_data[p.id] = Array.from(Array(app.vue.num_quarters), () => []);
+        professor_id_to_name[p.id] = p.name;
+      });
+      // view_2_data is the data used to populate View 2.
+      // view_2_data[class ID]. First key is the class ID.
+      // view_2_data[class ID][quarter idx]. Second key is the quarter number (0-indexed).
+      // view_2_data[class ID][quarter idx] is an array of {id: <professor ID>, name: <professor name>}.
+      
+      app.vue.matches.forEach((m) => {
+        if (!(m.class_id in app.vue.view_2_data)) {
+          console.error(`Found a match with class ID ${m.class_id}, which does not exist`);
+          return;
+        }
+        if (!(m.professor_id in app.vue.view_3_data)) {
+          console.error(`Found a match with professor ID ${m.professor_id}, which does not exist`);
+          return;
+        }
+        if (m.quarter < 0 || m.quarter >= app.vue.num_quarters) {
+          console.error(`Found a match with quarter ${m.quarter}, which does not exist`);
+          return;
+        }
+        app.vue.view_2_data[m.class_id][m.quarter].push({id: m.professor_id, name: professor_id_to_name[m.professor_id]});
+        app.vue.view_3_data[m.professor_id][m.quarter].push({id: m.class_id, name: class_id_to_name[m.class_id]});
+      });
+
+      console.log(app.vue.view_2_data);
+
+
     }).catch((error) => {
       console.error('Failed to load my matching:', error);
     })
