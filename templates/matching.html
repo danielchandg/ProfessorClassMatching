@@ -241,7 +241,9 @@
                      </div>
                      <div class="column is-3">
                         <input class="input is-static has-text-weight-bold" value="Sections" readonly>
-                        <input type="number" v-for="(_, idx) in quarter_names" class="input" type="text" v-model="c.num_sections[idx]">
+                        <input class="input" type="number" min="0" max="99" v-for="(_, q_idx) in quarter_names" v-model="c.num_sections[q_idx]" @change="edit_class(idx)"
+                               :class="{'is-danger': c.num_sections[q_idx] === '' || !Number.isInteger(Number(c.num_sections[q_idx])) || Number(c.num_sections[q_idx]) < 0 || Number(c.num_sections[q_idx]) > 99}"
+                        >
                      </div>
                      <div class="column">
                         <button @click="delete_class(idx)" class="button is-danger is-pulled-right">
@@ -541,6 +543,7 @@
    const matching_id = "[[=matching_id]]";
    const load_my_matching_url = "[[=XML(load_my_matching_url)]]";
    const add_class_url = "[[=XML(add_class_url)]]";
+   const edit_class_url = "[[=XML(edit_class_url)]]";
    const delete_class_url = "[[=XML(delete_class_url)]]";
    const add_professor_url = "[[=XML(add_professor_url)]]";
    const delete_professor_url = "[[=XML(delete_professor_url)]]";

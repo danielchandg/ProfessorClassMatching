@@ -208,6 +208,7 @@ def matching(my_id=None):
         matching_id=matching_id,
         load_my_matching_url=URL('load_my_matching', matching_id, signer=url_signer),
         add_class_url = URL('add_class', matching_id, signer=url_signer),
+        edit_class_url = URL('edit_class', matching_id, signer=url_signer),
         delete_class_url = URL('delete_class', matching_id, signer=url_signer),
         add_professor_url = URL('add_professor', matching_id, signer=url_signer),
         delete_professor_url = URL('delete_professor', matching_id, signer=url_signer),
@@ -291,27 +292,16 @@ def add_class(matching_id=None):
     return dict(id=id)
 
 # This route is for editing a class
-# Must include class id
-# Can edit name, description, or number of sections
 @action('edit_class/<matching_id:int>', method='POST')
 @action.uses(url_signer.verify(), db, auth.user)
 def edit_class(matching_id=None):
-    assert matching_id is not None
     id = request.json.get('id') # Database ID
-    name = request.json.get('name')
-    description = request.json.get('description')
     num_sections = request.json.get('num_sections')
-    set_classes = db((db.classes.id == id) & (db.classes.matching_id == matching_id))
-    assert set_classes.count() == 1
-    my_class = set_classes.select().first()
-    if name:
-        my_class.name = name
-    if description:
-        my_class.description = description
-    if num_sections:
-        my_class.num_sections = num_sections
-    my_class.update_record()
-    return f'ok updated class {id}'
+    edit_class = db((db.classes.id == id) & (db.classes.matching_id == matching_id))
+    assert edit_class.count() == 1
+    number_of_records_updated = edit_class.update(num_sections=num_sections)
+    assert number_of_records_updated == 1
+    return f'ok edited class {id}'
 
 # This route is for deleting a class
 @action('delete_class/<matching_id:int>', method='POST')
