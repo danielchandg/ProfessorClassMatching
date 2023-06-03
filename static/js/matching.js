@@ -466,6 +466,35 @@ let init = function (app) {
     app.vue.update_dropdown_menu += 1;
   }
 
+  app.check_prof_request_quarter_class = function(quarter, class_id, prof){
+    quarter_id = app.get_quarter_id(quarter)
+    req_classes = app.get_requested_classes(prof, quarter_id)
+    // console.log("QuarterID: %i, ClassID: %i, InClassQuarter: %b", quarter_id, class_id, req_classes.includes(class_id))
+    if (quarter_id == null){
+      return false
+    }
+    else{
+      return req_classes.includes(class_id)
+    }
+  }
+
+  app.get_quarter_id = function(quarter){
+    for (q in app.vue.quarter_names){
+      if (quarter == app.vue.quarter_names[q]){
+        return q;
+      }
+    }
+    return null;
+  }
+
+  app.get_requested_classes = function(professor, classID){
+    requested_clases_for_term = []
+    for(c in professor.requested_classes[classID]){
+      requested_clases_for_term.push(professor.requested_classes[classID][c])
+    }
+    return requested_clases_for_term
+  }
+
   app.methods = {
     add_class: app.add_class,
     edit_class: app.edit_class,
@@ -482,6 +511,9 @@ let init = function (app) {
     unhover_dropdown_menu: app.unhover_dropdown_menu,
     initialize_hover: app.initialize_hover,
     force_update_dropdown_menu: app.force_update_dropdown_menu,
+    check_prof_request_quarter_class: app.check_prof_request_quarter_class,
+    get_quarter_id: app.get_quarter_id,
+    get_requested_classes: app.get_requested_classes
   }
 
   app.vue = new Vue({
