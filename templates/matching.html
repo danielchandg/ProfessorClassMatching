@@ -313,7 +313,7 @@
                         <div v-for="(q, idx2) in quarter_names" class="field">
                            <label class="label">{{q}}</label>
                            <div class="select is-multiple">
-                              <select multiple v-model="professors[idx].requested_classes[idx2]">
+                              <select multiple v-model="professors[idx].requested_classes[idx2]" @change="edit_professor(idx, idx2)">
                                  <option v-for="c in classes" :value="c.id">{{ c.name }}</option>
                               </select>
                            </div>
@@ -545,6 +545,7 @@
    const edit_class_url = "[[=XML(edit_class_url)]]";
    const delete_class_url = "[[=XML(delete_class_url)]]";
    const add_professor_url = "[[=XML(add_professor_url)]]";
+   const edit_professor_url = "[[=XML(edit_professor_url)]]";
    const delete_professor_url = "[[=XML(delete_professor_url)]]";
    const add_match_url = "[[=XML(add_match_url)]]";
    const delete_match_url = "[[=XML(delete_match_url)]]";

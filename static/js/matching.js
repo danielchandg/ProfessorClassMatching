@@ -260,12 +260,26 @@ let init = function (app) {
     app.vue.add_professor_classes = Array(app.vue.num_quarters).fill([]);
   }
 
-  // TODO
-  // Write Vue function app.edit_professor
-  // Write controller function edit_professor
-  // Add frontend URL & button
-  app.edit_professor = function (idx) {
+  app.edit_professor = function (idx, idx2) {
+    const id = app.vue.professors[idx].id;
+    const quarter = idx2;
+    const requested_classes =  app.vue.professors[idx].requested_classes[quarter];
+    const all_classes = app.vue.classes.map(c => c.id)
+    const non_requested_classes = all_classes.filter(c_id => !requested_classes.includes(c_id))
+    console.log(`requested classes: ${requested_classes}`)
+    console.log(`all classes: ${all_classes}`)
+    console.log(`non-requested classes: ${non_requested_classes}`)
 
+    axios.post(edit_professor_url, {
+      id: id,
+      quarter: quarter,
+      requested_classes: requested_classes,
+      non_requested_classes: non_requested_classes
+    }).then(function (response) {
+      console.log(`Edited professor with idx ${idx}`);
+    }).catch(function (error) {
+      console.error(`Error when editing professor with idx ${idx}`, error);
+    });
   }
 
   // This function is called to delete a professor.
