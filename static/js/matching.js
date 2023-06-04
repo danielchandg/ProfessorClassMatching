@@ -261,12 +261,26 @@ let init = function (app) {
     app.vue.add_professor_classes = Array(app.vue.num_quarters).fill([]);
   }
 
-  // TODO
-  // Write Vue function app.edit_professor
-  // Write controller function edit_professor
-  // Add frontend URL & button
-  app.edit_professor = function (idx) {
+  app.edit_professor = function (idx, idx2) {
+    const id = app.vue.professors[idx].id;
+    const quarter = idx2;
+    const requested_classes =  app.vue.professors[idx].requested_classes[quarter];
+    const all_classes = app.vue.classes.map(c => c.id)
+    const non_requested_classes = all_classes.filter(c_id => !requested_classes.includes(c_id))
+    // console.log(`requested classes: ${requested_classes}`)
+    // console.log(`all classes: ${all_classes}`)
+    // console.log(`non-requested classes: ${non_requested_classes}`)
 
+    axios.post(edit_professor_url, {
+      id: id,
+      quarter: quarter,
+      requested_classes: requested_classes,
+      non_requested_classes: non_requested_classes
+    }).then(function (response) {
+      console.log(`Edited professor ${app.vue.professors[idx].name}`);
+    }).catch(function (error) {
+      console.error(`Error when editing professor${app.vue.professors[idx].name}`, error);
+    });
   }
 
   // This function is called to delete a professor.
@@ -468,15 +482,15 @@ let init = function (app) {
   }
 
   app.check_prof_request_quarter_class = function(quarter, class_id, prof){
-    quarter_id = app.get_quarter_id(quarter);
-    req_classes = app.get_requested_classes(prof, quarter_id);
-    key = class_id + quarter;
+    const quarter_id = app.get_quarter_id(quarter);
+    const req_classes = app.get_requested_classes(prof, quarter_id);
+    const key = class_id + quarter;
     // console.log("QuarterID: %i, ClassID: %i, InClassQuarter: %b", quarter_id, class_id, req_classes.includes(class_id))
     if (quarter_id == null){
       return false
     }
     else{
-      prof_requested_class_in_term = req_classes.includes(class_id);
+      const prof_requested_class_in_term = req_classes.includes(class_id);
 
       if(prof_requested_class_in_term){
         if (key in app.vue.view2_prof_class_quarter){

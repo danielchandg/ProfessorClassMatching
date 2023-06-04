@@ -211,6 +211,7 @@ def matching(my_id=None):
         edit_class_url = URL('edit_class', matching_id, signer=url_signer),
         delete_class_url = URL('delete_class', matching_id, signer=url_signer),
         add_professor_url = URL('add_professor', matching_id, signer=url_signer),
+        edit_professor_url = URL('edit_professor', matching_id, signer=url_signer),
         delete_professor_url = URL('delete_professor', matching_id, signer=url_signer),
         add_match_url = URL('add_match', matching_id, signer=url_signer),
         delete_match_url = URL('delete_match', matching_id, signer=url_signer)
@@ -295,6 +296,7 @@ def add_class(matching_id=None):
 @action('edit_class/<matching_id:int>', method='POST')
 @action.uses(url_signer.verify(), db, auth.user)
 def edit_class(matching_id=None):
+    assert matching_id is not None
     id = request.json.get('id') # Database ID
     num_sections = request.json.get('num_sections')
     edit_class = db((db.classes.id == id) & (db.classes.matching_id == matching_id))
@@ -344,36 +346,40 @@ def add_professor(matching_id=None):
     return dict(id=professor_id)
 
 # This route is for editing a professor
-# Must include professor id
-# Can edit name, description, or class requests
 @action('edit_professor/<matching_id:int>', method='POST')
 @action.uses(url_signer.verify(), db, auth.user)
 def edit_professor(matching_id=None):
+    # Note: I'm treating fields professor_id, class_id, and quarter in the class_requests table as the primary key
     assert matching_id is not None
-    my_matching = db.matchings[matching_id]
-    assert my_matching is not None
-    assert my_matching.user_id == get_user_id()
-    id = request.json.get('id') # Database ID
-    name = request.json.get('name')
-    description = request.json.get('description')
-    class_requests = request.json.get('class_requests')
-    set_professors = db((db.professors.id == id) & (db.professors.matching_id == matching_id))
-    assert set_professors.count() == 1
-    my_professor = set_professors.select().first()
-    if name or description:
-        if name:
-            my_professor.name_ = name
-        if description:
-            my_professor.description = description
-        my_professor.update_record()
-    if class_requests:
-        assert my_matching.num_quarters == len(class_requests)
-        my_requested_classes = my_professor.requested_classes.select()
-        for my_class_request in my_requested_classes:
-            if my_class_request.class_id not in class_requests[my_class_request.quarter]:
-                my_class_request.delete_record()
+    id = request.json.get('id')
+    quarter = request.json.get('quarter')
+    requested_classes = request.json.get('requested_classes') # ids of requested classes for a quarter
+    non_requested_classes = request.json.get('non_requested_classes')
 
-    return f'ok updated professor {id}'
+    for class_id in requested_classes:
+        my_class = db.classes[class_id]
+        assert my_class.matching_id == matching_id
+        # query to check if entry to insert doesn't exist in the database
+        result = db((db.class_requests.professor_id == id) &
+                    (db.class_requests.class_id == class_id) &
+                    (db.class_requests.quarter == quarter)).isempty()
+        if result:
+            db.class_requests.insert(
+                matching_id=matching_id,
+                professor_id=id,
+                class_id=class_id,
+                quarter=quarter
+            )
+
+    for class_id in non_requested_classes:
+        my_class = db.classes[class_id]
+        assert my_class.matching_id == matching_id
+        # entry will only be deleted if it exists in the database
+        db((db.class_requests.professor_id == id) &
+           (db.class_requests.class_id == class_id) &
+           (db.class_requests.quarter == quarter)).delete()
+
+    return f'ok edited professor {id}'
 
 # This route is for deleting a professor
 @action('delete_professor/<matching_id:int>', method='POST')
