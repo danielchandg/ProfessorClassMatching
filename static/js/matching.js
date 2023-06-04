@@ -34,6 +34,7 @@ let init = function (app) {
     hovered_class_term: {},
     update_dropdown_menu: 0,
     dropdown_hover: false,
+    view2_prof_class_quarter: {},
   };
 
   // This function is called to add a class.
@@ -467,14 +468,28 @@ let init = function (app) {
   }
 
   app.check_prof_request_quarter_class = function(quarter, class_id, prof){
-    quarter_id = app.get_quarter_id(quarter)
-    req_classes = app.get_requested_classes(prof, quarter_id)
+    quarter_id = app.get_quarter_id(quarter);
+    req_classes = app.get_requested_classes(prof, quarter_id);
+    key = class_id + quarter;
     // console.log("QuarterID: %i, ClassID: %i, InClassQuarter: %b", quarter_id, class_id, req_classes.includes(class_id))
     if (quarter_id == null){
       return false
     }
     else{
-      return req_classes.includes(class_id)
+      prof_requested_class_in_term = req_classes.includes(class_id);
+
+      if(prof_requested_class_in_term){
+        if (key in app.vue.view2_prof_class_quarter){
+          app.vue.view2_prof_class_quarter[key].push(prof.id);
+        }
+        else{
+          app.vue.view2_prof_class_quarter[key] = [];
+          app.vue.view2_prof_class_quarter[key].push(prof.id);
+        }
+        // console.log(prof.id);
+      }
+
+      return prof_requested_class_in_term;
     }
   }
 
@@ -495,6 +510,28 @@ let init = function (app) {
     return requested_clases_for_term
   }
 
+  app.get_drop_profs = function(key){ //returns a tuple of prof_name and prof_id to add to a class_quarter
+    drop_professors = [];
+
+    if(key in app.vue.view2_prof_class_quarter){
+      for (p in app.vue.professors){
+        if(app.vue.view2_prof_class_quarter[key].includes(app.vue.professors[p].id)){
+          continue;
+        }
+        else{
+          drop_professors.push([app.vue.professors[p].name, app.vue.professors[p].id]);
+        }
+      }
+    }
+    else{
+      for (p in app.vue.professors){
+        drop_professors.push([app.vue.professors[p].name, app.vue.professors[p].id]);
+      }
+    }
+
+    return drop_professors;
+  }
+
   app.methods = {
     add_class: app.add_class,
     edit_class: app.edit_class,
@@ -513,7 +550,8 @@ let init = function (app) {
     force_update_dropdown_menu: app.force_update_dropdown_menu,
     check_prof_request_quarter_class: app.check_prof_request_quarter_class,
     get_quarter_id: app.get_quarter_id,
-    get_requested_classes: app.get_requested_classes
+    get_requested_classes: app.get_requested_classes,
+    get_drop_profs: app.get_drop_profs,
   }
 
   app.vue = new Vue({

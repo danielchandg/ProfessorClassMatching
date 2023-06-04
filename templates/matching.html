@@ -422,8 +422,8 @@
                                                 </div>
                                                 <div class="dropdown-menu" id="dropdown-menu3" role="menu">
                                                 <div class="dropdown-content">
-                                                   <div class="dropdown-item" v-for="p in professors">
-                                                      <p>{{p.name}}</p>
+                                                   <div class="dropdown-item" v-for="prof in get_drop_profs(c.id + q)">
+                                                      <p>{{prof[0]}}</p>
                                                    </div>
                                                 </div>
                                                 </div>
