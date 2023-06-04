@@ -208,7 +208,7 @@
                   {{m[field]}}
                </td>
                <td>
-                  <button @click="delete_match(idx)" class="button is-danger">
+                  <button @click="delete_match_old(idx)" class="button is-danger">
                      <i class="fa fa-trash"></i></button>
                   <button @click="" class="button is-warning">
                      <i class="fa fa-edit"></i></button>
@@ -398,12 +398,9 @@
                                  <div class="tile is-ancestor">
                                     <div class="tile" @mouseenter="hover_dropdown_menu(c.id + q)" @mouseleave="unhover_dropdown_menu(c.id + q)"> 
                                        <div class="tile is-parent is-vertical">
-                                          <div class="tile is-child box notification custom-tile">
-                                             <p>_____________</p>
-                                          </div>
-                                          <div class="tile is-child box notification custom-tile" v-for="m in view_2_data[c.id][idx]"> 
-                                                <p>{{m.name}}</p>
-                                                <button class="button is-danger" @click="delete_match"> <!---@click="delete_matching"-->
+                                          <div class="tile is-child box notification custom-tile" v-for="p in view_2_data[c.id][idx]"> 
+                                                <p>{{p.name}}</p>
+                                                <button class="button is-danger" @click="delete_match(c.id, p.id, idx)">
                                                    <span class="icon is-small">
                                                       <i class="fa fa-times"></i>
                                                    </span>
@@ -413,7 +410,7 @@
                                           <div class="tile is-child" v-if="hovered_class_term[c.id + q]">
                                              <div class="dropdown" @mouseenter="dropdown_hover = true" @mouseleave="dropdown_hover = false" :class="{ 'is-active': dropdown_hover}">
                                                 <div class="dropdown-trigger">
-                                                   <button class="button is-link" aria-haspopup="true" aria-controls="dropdown-menu3">
+                                                   <button class="button is-link is-responsive" aria-haspopup="true" aria-controls="dropdown-menu3">
                                                       <span><i class="fa fa-plus"> Add Professor</i></span>
                                                       <span class="icon is-small">
                                                          <i class="fa fa-angle-down" aria-hidden="true"></i>
@@ -428,6 +425,10 @@
                                                 </div>
                                                 </div>
                                              </div>
+                                          </div>
+
+                                          <div class="tile is-child" v-else>
+                                             <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                                           </div>
 
                                        </div>
