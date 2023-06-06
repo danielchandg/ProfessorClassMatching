@@ -31,8 +31,9 @@ let init = function (app) {
     add_match_mode: false,
     search_class: '',
     search_professor: '',
-    hovered_class_term: {},
-    hovered_prof_term: {},
+    hovered_class_term: '',
+    hovered_prof_term: '',
+    hovered_match: '',
     update_dropdown_menu: 0,
     update_dropdown_menu_view3: 0,
     dropdown_hover: false,
@@ -359,7 +360,7 @@ let init = function (app) {
   // app.vue.add_match_class is the index of the class in app.vue.classes.
   // app.vue.add_match_professor is the index of the professor in app.vue.professors.
   // app.vue.add_match_quarter is the index of the quarter in app.vue.quarter_names.
-  app.add_match = function () {
+  app.add_match_old = function () {
     if(app.vue.add_match_class < 0) {
       console.error('Class is required');
       return;
@@ -375,41 +376,52 @@ let init = function (app) {
     const Class = app.vue.classes[app.vue.add_match_class];
     const Professor = app.vue.professors[app.vue.add_match_professor];
     const Quarter = app.vue.add_match_quarter;
+    app.add_match(Class.id, Professor.id, Quarter);
+  }
+
+  app.add_match = function (class_id, professor_id, quarter) {
     const curTime = new Date();
-    if(Class.id < 0){
-      console.error(`Unable to add match to class ${Class.id}`);
+    const Class = app.vue.classes.find((c) => c.id === class_id);
+    if(Class === undefined){
+      console.error(`Unable to add match to class ${class_id}`);
       return;
     }
-    if(Professor.id < 0){
-      console.error(`Unable to add match to professor ${Professor.id}`);
+    const Professor = app.vue.professors.find((p) => p.id === professor_id);
+    if(Professor === undefined){
+      console.error(`Unable to add match to professor ${professor_id}`);
       return;
     }
-    console.log(`Adding match: [${Professor.name}, ${Class.name}] in ${app.vue.quarter_names[Quarter]}`);
+    if(quarter < 0){
+      console.error(`Unable to add match to quarter ${quarter}`);
+      return;
+    }
+
+    console.log(`Adding match: [${Class.name}, ${Professor.name}, ${app.vue.quarter_names[quarter]}]`);
     app.vue.matches.push({
       id: -1,
-      class_id: Class.id,
-      professor_id: Professor.id,
-      quarter: Quarter,
+      class_id: class_id,
+      professor_id: professor_id,
+      quarter: quarter,
       created_on: curTime.toString()
     });
-    app.vue.view_2_data[Class.id][Quarter].push({id: Professor.id, name: Professor.name});
-    app.vue.view_3_data[Professor.id][Quarter].push({id: Class.id, name: Class.name});
+    app.vue.view_2_data[class_id][quarter].push({id: professor_id, name: Professor.name});
+    app.vue.view_3_data[professor_id][quarter].push({id: class_id, name: Class.name});
     app.force_update_dropdown_menu();
     app.reset_match_form();
     app.vue.add_match_mode = false;
     axios.post(add_match_url, {
-      class_id: Class.id,
-      professor_id: Professor.id,
-      quarter: Quarter,
+      class_id: class_id,
+      professor_id: professor_id,
+      quarter: quarter,
       created_on: curTime.toString()
     }).then(function (response) {
-      console.log(`Added match: [${Professor.name}, ${Class.name}] in ${app.vue.quarter_names[Quarter]}`);
-      if(!app.update_local_match(Class.id, Professor.id, Quarter, response.data.id)) {
+      console.log(`Added match: [${Professor.name}, ${Class.name}, ${app.vue.quarter_names[quarter]}]`);
+      if(!app.update_local_match(class_id, professor_id, quarter, response.data.id)) {
         console.error(`After adding match, unable to add ID ${response.data.id}`);
       }
     }).catch(function (error) {
       console.error(`Error when adding match ${Professor.name} & ${Class.name}:`, error);
-      if(!app.remove_local_match(Class.id, Professor.id, Quarter)) {
+      if(!app.remove_local_match(class_id, professor_id, quarter)) {
         console.error(`Error when un-adding match ${Professor.name} & ${Class.name}, not found`);
       }
     });
@@ -463,6 +475,7 @@ let init = function (app) {
   }
 
   app.delete_match = function (class_id, professor_id, quarter) {
+    console.log(`Trying to delete match ${class_id}, ${professor_id}, ${quarter}`);
     if (!(class_id in app.vue.view_2_data)) {
       console.error(`Error: When deleting match, unable to find class ID ${class_id} in view_2_data`);
       return;
@@ -545,45 +558,33 @@ let init = function (app) {
   }
   
   app.hover_dropdown_menu = function(id){
-    if (!app.vue.hovered_class_term[id]){
-      app.vue.hovered_class_term[id] = true;
-      app.force_update_dropdown_menu();
-    }
+    app.vue.hovered_class_term = id;
+    app.force_update_dropdown_menu();
   }
 
-  app.unhover_dropdown_menu = function(id){
-    if (app.vue.hovered_class_term[id]){
-      app.vue.hovered_class_term[id] = false;
-      app.force_update_dropdown_menu();
-    }
+  app.unhover_dropdown_menu = function(){
+    app.vue.hovered_class_term = '';
+    app.force_update_dropdown_menu();
   }
 
   app.hover_dropdown_menu_view_3 = function(id){
-    if (!app.vue.hovered_prof_term[id]){
-      app.vue.hovered_prof_term[id] = true;
-      app.force_update_dropdown_menu();
-    }
+    app.vue.hovered_prof_term = id;
+    app.force_update_dropdown_menu();
   }
 
-  app.unhover_dropdown_menu_view_3 = function(id){
-    if (app.vue.hovered_prof_term[id]){
-      app.vue.hovered_prof_term[id] = false;
-      app.force_update_dropdown_menu();
-    }
+  app.unhover_dropdown_menu_view_3 = function(){
+    pp.vue.hovered_prof_term = '';
+    app.force_update_dropdown_menu();
   }
 
-  app.initialize_hover = function(){
-    for(c in app.vue.classes){
-      for(q in app.vue.quarter_names){
-        app.vue.hovered_class_term[app.vue.classes[c].id + app.vue.quarter_names[q]] = false;
-      }
-    };
+  app.hover_match_menu = function(id){
+    app.vue.hovered_match = id;
+    app.force_update_dropdown_menu();
+  }
 
-    for(p in app.vue.professors){
-      for(q in app.vue.quarter_names){
-        app.vue.hovered_prof_term[app.vue.professors[p].id + app.vue.quarter_names[q]] = false;
-      }
-    };
+  app.unhover_match_menu = function(){
+    app.vue.hovered_match = '';
+    app.force_update_dropdown_menu();
   }
 
   app.force_update_dropdown_menu = function(){
@@ -678,14 +679,6 @@ let init = function (app) {
     return drop_classes;
   }
 
-  app.add_match_wrapper = function(class_id, quarter, prof_id){
-    // console.log(class_id - 1, app.get_quarter_id(quarter), prof_id - 1);
-    app.vue.add_match_class = class_id - 1;
-    app.vue.add_match_quarter =  app.get_quarter_id(quarter);
-    app.vue.add_match_professor = prof_id - 1;
-    app.add_match();
-  }
-
   app.methods = {
     add_class: app.add_class,
     edit_class: app.edit_class,
@@ -697,20 +690,21 @@ let init = function (app) {
     set_add_professor_status: app.set_add_professor_status,
     set_add_match_status: app.set_add_match_status,
     add_match: app.add_match,
+    add_match_old: app.add_match_old,
     delete_match: app.delete_match,
     delete_match_old: app.delete_match_old,
     hover_dropdown_menu: app.hover_dropdown_menu,
     unhover_dropdown_menu: app.unhover_dropdown_menu,
     hover_dropdown_menu_view_3: app.hover_dropdown_menu_view_3,
     unhover_dropdown_menu_view_3: app.unhover_dropdown_menu_view_3,
-    initialize_hover: app.initialize_hover,
     force_update_dropdown_menu: app.force_update_dropdown_menu,
     check_prof_request_quarter_class: app.check_prof_request_quarter_class,
     get_quarter_id: app.get_quarter_id,
     get_requested_classes: app.get_requested_classes,
     get_drop_profs: app.get_drop_profs,
-    add_match_wrapper: app.add_match_wrapper,
     get_drop_classes: app.get_drop_classes,
+    hover_match_menu: app.hover_match_menu,
+    unhover_match_menu: app.unhover_match_menu,
   }
 
   app.vue = new Vue({
@@ -734,7 +728,6 @@ let init = function (app) {
       app.reset_class_form();
       app.reset_professor_form();
       app.reset_match_form();
-      app.initialize_hover();
       app.init_view_2_3_data();
 
     }).catch((error) => {
