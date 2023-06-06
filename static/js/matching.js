@@ -32,9 +32,13 @@ let init = function (app) {
     search_class: '',
     search_professor: '',
     hovered_class_term: {},
+    hovered_prof_term: {},
     update_dropdown_menu: 0,
+    update_dropdown_menu_view3: 0,
     dropdown_hover: false,
+    dropdown_hover_view3: false,
     view2_prof_class_quarter: {},
+    view3_prof_class_quarter: {},
     
     view_2_data: {},
     // view_2_data is the data used to populate View 2.
@@ -554,16 +558,37 @@ let init = function (app) {
     }
   }
 
+  app.hover_dropdown_menu_view_3 = function(id){
+    if (!app.vue.hovered_prof_term[id]){
+      app.vue.hovered_prof_term[id] = true;
+      app.force_update_dropdown_menu();
+    }
+  }
+
+  app.unhover_dropdown_menu_view_3 = function(id){
+    if (app.vue.hovered_prof_term[id]){
+      app.vue.hovered_prof_term[id] = false;
+      app.force_update_dropdown_menu();
+    }
+  }
+
   app.initialize_hover = function(){
     for(c in app.vue.classes){
       for(q in app.vue.quarter_names){
         app.vue.hovered_class_term[app.vue.classes[c].id + app.vue.quarter_names[q]] = false;
       }
     };
+
+    for(p in app.vue.professors){
+      for(q in app.vue.quarter_names){
+        app.vue.hovered_prof_term[app.vue.professors[p].id + app.vue.quarter_names[q]] = false;
+      }
+    };
   }
 
   app.force_update_dropdown_menu = function(){
     app.vue.update_dropdown_menu += 1;
+    app.vue.update_dropdown_menu_view3 += 1;
   }
 
   app.check_prof_request_quarter_class = function(quarter, class_id, prof){
@@ -631,6 +656,36 @@ let init = function (app) {
     return drop_professors;
   }
 
+  app.get_drop_classes = function(key){
+    drop_classes = [];
+
+    if(key in app.vue.view3_prof_class_quarter){
+      for (c in app.vue.classes){
+        if(app.vue.view3_prof_class_quarter[key].includes(app.vue.classes[c].id)){
+          continue;
+        }
+        else{
+          drop_classes.push([app.vue.classes[c].name, app.vue.classes[c].id]);
+        }
+      }
+    }
+    else{
+      for (c in app.vue.classes){
+        drop_classes.push([app.vue.classes[c].name, app.vue.classes[c].id]);
+      }
+    }
+
+    return drop_classes;
+  }
+
+  app.add_match_wrapper = function(class_id, quarter, prof_id){
+    // console.log(class_id - 1, app.get_quarter_id(quarter), prof_id - 1);
+    app.vue.add_match_class = class_id - 1;
+    app.vue.add_match_quarter =  app.get_quarter_id(quarter);
+    app.vue.add_match_professor = prof_id - 1;
+    app.add_match();
+  }
+
   app.methods = {
     add_class: app.add_class,
     edit_class: app.edit_class,
@@ -646,12 +701,16 @@ let init = function (app) {
     delete_match_old: app.delete_match_old,
     hover_dropdown_menu: app.hover_dropdown_menu,
     unhover_dropdown_menu: app.unhover_dropdown_menu,
+    hover_dropdown_menu_view_3: app.hover_dropdown_menu_view_3,
+    unhover_dropdown_menu_view_3: app.unhover_dropdown_menu_view_3,
     initialize_hover: app.initialize_hover,
     force_update_dropdown_menu: app.force_update_dropdown_menu,
     check_prof_request_quarter_class: app.check_prof_request_quarter_class,
     get_quarter_id: app.get_quarter_id,
     get_requested_classes: app.get_requested_classes,
     get_drop_profs: app.get_drop_profs,
+    add_match_wrapper: app.add_match_wrapper,
+    get_drop_classes: app.get_drop_classes,
   }
 
   app.vue = new Vue({

@@ -399,10 +399,8 @@
                                     <div class="tile"> 
                                        <div class="tile is-parent is-vertical">
 
-                                          <!-- <div class="tile is-child block notification custom-tile" style="text-align: center; background-color: wheat;"><p>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</p></div> -->
-                                          <!-- <div class="tile is-child box notification custom-tile" v-for="p in professors" v-if="check_prof_request_quarter_class(q,c.id,p)">  -->
                                           <div class="tile is-child box notification custom-tile" v-for="p in view_2_data[c.id][idx]"> 
-                                                <p>{{p.name}}</p>
+                                                <p>&nbsp;&nbsp;{{p.name}}&nbsp;&nbsp;</p>
                                                 <button class="button is-danger" @click="delete_match(c.id, p.id, idx)">
                                                    <span class="icon is-small">
                                                       <i class="fa fa-times"></i>
@@ -414,7 +412,7 @@
                                              <div class="dropdown" @mouseenter="dropdown_hover = true" @mouseleave="dropdown_hover = false" :class="{ 'is-active': dropdown_hover}">
                                                 <div class="dropdown-trigger">
                                                    <button class="button is-link is-responsive" aria-haspopup="true" aria-controls="dropdown-menu3">
-                                                      <span><i class="fa fa-plus"> Add Professor</i></span>
+                                                      <span><i class="fa fa-plus">&nbsp;&nbsp;Add Professor&nbsp;&nbsp;</i></span>
                                                       <span class="icon is-small">
                                                          <i class="fa fa-angle-down" aria-hidden="true"></i>
                                                       </span>
@@ -423,7 +421,7 @@
                                                 <div class="dropdown-menu" id="dropdown-menu3" role="menu">
                                                 <div class="dropdown-content">
                                                    <div class="dropdown-item" v-for="prof in get_drop_profs(c.id + q)">
-                                                      <p>{{prof[0]}}</p>
+                                                      <button @click="add_match_wrapper(c.id, q, prof[1])">{{prof[0]}}</button>
                                                    </div>
                                                 </div>
                                                 </div>
@@ -472,26 +470,27 @@
          <table class ="table is-striped is-fullwidth">
             <thead>
                <tr class="is-flex is-justify-content-space-between">
-                  <th v-for="q in quarter_names" class="blue-background has-text-centered":key="q">
+                  <th v-for="q in quarter_names" class="blue-background has-text-centered">
                         {{q}}
                   </th>
                </tr>
 
             </thead>
             <tbody>
-                  <tr v-for="p in professors" :key="p">
-                     <td v-for="field in ['name']" class="row-title" :colspan="num_quarters":key="field">
+                  <tr v-for="p in professors">
+                     <td v-for="field in ['name']" class="row-title" :colspan="num_quarters" :key="update_dropdown_menu_view3">
                      
                         {{p[field]}} 
                         
                         <table class="table is-striped is-fullwidth">
                            <tr>
-                              <td v-for="(q, idx) in quarter_names" style="text-align: center; background-color: wheat;" @mouseenter="hover_dropdown_menu(p.id + q)" @mouseleave="unhover_dropdown_menu(p.id + q)">
+                              <td v-for="(q, idx) in quarter_names" style="text-align: center; background-color: wheat;" @mouseenter="hover_dropdown_menu_view_3(p.id + q)" @mouseleave="unhover_dropdown_menu_view_3(p.id + q)">
                                  <div class="tile is-ancestor">
                                     <div class="tile"> 
                                        <div class="tile is-parent is-vertical">
+
                                           <div class="tile is-child box notification custom-tile" v-for="c in view_3_data[p.id][idx]"> 
-                                                <p>{{c.name}}</p>
+                                                <div>&nbsp;&nbsp;{{c.name}}&nbsp;&nbsp;</div>
                                                 <button class="button is-danger" @click="delete_match(c.id, p.id, idx)">
                                                    <span class="icon is-small">
                                                       <i class="fa fa-times"></i>
@@ -499,22 +498,22 @@
                                                 </button>
                                           </div>
 
-                                          <div class="tile is-child" v-if="hovered_class_term[p.id + q]">
-                                             <div class="dropdown" @mouseenter="dropdown_hover = true" @mouseleave="dropdown_hover = false" :class="{ 'is-active': dropdown_hover}">
+                                          <div class="tile is-child" v-if="hovered_prof_term[p.id + q]">
+                                             <div class="dropdown" @mouseenter="dropdown_hover_view3 = true" @mouseleave="dropdown_hover_view3 = false" :class="{ 'is-active': dropdown_hover_view3}">
                                                 <div class="dropdown-trigger">
                                                    <button class="button is-link is-responsive" aria-haspopup="true" aria-controls="dropdown-menu3">
-                                                      <span><i class="fa fa-plus"> Add Class</i></span>
+                                                      <span><i class="fa fa-plus">&nbsp;&nbsp;Add Class&nbsp;&nbsp;</i></span>
                                                       <span class="icon is-small">
                                                          <i class="fa fa-angle-down" aria-hidden="true"></i>
                                                       </span>
                                                    </button>
                                                 </div>
                                                 <div class="dropdown-menu" id="dropdown-menu3" role="menu">
-                                                <div class="dropdown-content">
-                                                   <div class="dropdown-item" v-for="prof in get_drop_profs(c.id + q)">
-                                                      <p>{{prof[0]}}</p>
+                                                   <div class="dropdown-content">
+                                                      <div class="dropdown-item" v-for="cl in get_drop_classes(p.id + q)">
+                                                         <button @click="add_match_wrapper(cl[1], q, p.id)">{{cl[0]}}</button>
+                                                      </div>
                                                    </div>
-                                                </div>
                                                 </div>
                                              </div>
                                           </div>
