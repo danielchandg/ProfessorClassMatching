@@ -20,6 +20,11 @@
       background-color: white;
    }
 
+   td {
+      text-align: center;
+      background-color: wheat;
+   }
+
 
 </style>
 
@@ -388,20 +393,20 @@
             </thead>
             <tbody>
                   <tr v-for="c in classes">
-                     <td v-for="field in ['name']" class="row-title" :colspan="num_quarters" :key="update_dropdown_menu">
+                     <td v-for="field in ['name']" class="row-title" :colspan="num_quarters" :key="update_dropdown_menu" :style="{ width: `${100 / num_quarters}%` }">
                      
                         {{c[field]}}
                         
                         <table class="table is-striped is-fullwidth">
                            <tr>
-                              <td v-for="(q, idx) in quarter_names" style="text-align: center; background-color: wheat;">
+                              <td v-for="(q, idx) in quarter_names" :style="{ width: `${100 / num_quarters}%`, textAlign: 'center', backgroundColor: 'wheat'}">
                                  <div class="tile is-ancestor">
                                     <div class="tile"> 
                                        <div class="tile is-parent is-vertical">
 
                                           <div class="tile is-child box notification custom-tile" v-for="p in view_2_data[c.id][idx]" @mouseover="hover_match_menu(q + c.id + ' ' + p.id)" @mouseout="unhover_match_menu()">
                                              <div class="columns">
-                                                <div class="column is-one-quarter"></div>
+                                                
                                                 <div class="column is-half">
                                                    <p class="subtitle is-5">{{p.name}}</p>
                                                 </div>
@@ -495,7 +500,7 @@
                         
                         <table class="table is-striped is-fullwidth">
                            <tr>
-                              <td v-for="(q, idx) in quarter_names" style="text-align: center; background-color: wheat;">
+                              <td v-for="(q, idx) in quarter_names" :style="{ width: `${100 / num_quarters}%`, textAlign: 'center', backgroundColor: 'wheat'}">
                                  <div class="tile is-ancestor">
                                     <div class="tile"> 
                                        <div class="tile is-parent is-vertical">
@@ -532,8 +537,8 @@
                                                 </div>
                                                 <div class="dropdown-menu" id="dropdown-menu3" role="menu">
                                                    <div class="dropdown-content">
-                                                      <a class="dropdown-item" v-for="p in professors" @click="add_match(c.id, p.id, idx)">
-                                                         {{p.name}}
+                                                      <a class="dropdown-item" v-for="c in classes" @click="add_match(c.id, p.id, idx)">
+                                                         {{c.name}}
                                                       </a>
                                                    </div>
                                                 </div>
