@@ -20,6 +20,11 @@
       background-color: white;
    }
 
+   td {
+      text-align: center;
+      background-color: wheat;
+   }
+
 
 </style>
 
@@ -306,12 +311,13 @@
                   <div class="columns control is-mobile">
                      <div class="column is-3">
                         <input class="input is-static has-text-weight-bold" value="Quarter" readonly>
-                        <input v-for="quarter in quarter_names" class="input is-static" :value="quarter" readonly>
+                        <input v-for="(quarter, idx2) in quarter_names" class="input is-static" :value="quarter" readonly
+                               :class="{ 'mb-large': idx2 + 1 !== quarter_names.length }"
+                        >
                      </div>
                      <div class="column is-4">
                         <input class="input is-static has-text-weight-bold" value="Courses" readonly>
                         <div v-for="(q, idx2) in quarter_names" class="field">
-                           <label class="label">{{q}}</label>
                            <div class="select is-multiple">
                               <select multiple v-model="professors[idx].requested_classes[idx2]" @change="edit_professor(idx, idx2)">
                                  <option v-for="c in classes" :value="c.id">{{ c.name }}</option>
@@ -380,7 +386,7 @@
          <table class ="table is-striped is-fullwidth">
             <thead>
                <tr class="is-flex is-justify-content-space-between">
-                  <th v-for="q in quarter_names" class="blue-background has-text-centered">
+                  <th v-for="q in quarter_names" class="is-primary has-text-centered" :style="{ width: `${100 / num_quarters}%`, textAlign: 'center'}">
                         {{q}}
                   </th>
                </tr>
@@ -388,13 +394,13 @@
             </thead>
             <tbody>
                   <tr v-for="c in classes">
-                     <td v-for="field in ['name']" class="row-title" :colspan="num_quarters" :key="update_dropdown_menu">
+                     <td v-for="field in ['name']" class="row-title" :colspan="num_quarters" :key="update_dropdown_menu" :style="{ width: `${100 / num_quarters}%` }">
                      
                         {{c[field]}}
                         
                         <table class="table is-striped is-fullwidth">
                            <tr>
-                              <td v-for="(q, idx) in quarter_names" style="text-align: center; background-color: wheat;">
+                              <td v-for="(q, idx) in quarter_names" :style="{ width: `${100 / num_quarters}%`, textAlign: 'center', backgroundColor: 'wheat'}">
                                  <div class="tile is-ancestor">
                                     <div class="tile"> 
                                        <div class="tile is-parent is-vertical">
@@ -403,7 +409,7 @@
                                              <div class="columns">
                                                 <div class="column is-one-quarter"></div>
                                                 <div class="column is-half">
-                                                   <p class="subtitle is-5">{{p.name}}</p>
+                                                   <p class="subtitle is-6" :style="{ marginTop: `9px`}">{{p.name}}</p>
                                                 </div>
                                                 <div class="column">
                                                    <button class="button is-link is-inverted" v-if="hovered_match == q + c.id + ' ' + p.id" @click="delete_match(c.id, p.id, idx)">
@@ -419,7 +425,7 @@
                                           </div>
 
                                           <div class="tile is-child" v-if="hovered_class_term == c.id + q">
-                                             <div class="dropdown" @mouseenter="dropdown_hover = true" @mouseleave="dropdown_hover = false" :class="{ 'is-active': dropdown_hover}">
+                                             <div class="dropdown" @mouseover="dropdown_hover = true" @mouseout="dropdown_hover = false" :class="{ 'is-active': dropdown_hover}">
                                                 <div class="dropdown-trigger">
                                                    <button class="button is-link is-outlined" aria-haspopup="true" aria-controls="dropdown-menu3">
                                                       <span><i class="fa fa-plus">&nbsp;&nbsp;Add Professor&nbsp;&nbsp;</i></span>
@@ -439,7 +445,7 @@
                                              </div>
                                           </div>
 
-                                          <div class="tile is-child" v-else @mouseenter="hover_dropdown_menu(c.id + q)" @mouseleave="unhover_dropdown_menu()">
+                                          <div class="tile is-child" v-else @mouseover="hover_dropdown_menu(c.id + q)" @mouseout="unhover_dropdown_menu()">
                                              <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                                           </div>
 
@@ -480,9 +486,9 @@
       <div class="container">
          <table class ="table is-striped is-fullwidth">
             <thead>
-               <tr class="is-flex is-justify-content-space-between">
-                  <th v-for="q in quarter_names" class="blue-background has-text-centered">
-                        {{q}}
+               <tr>
+                  <th v-for="q in quarter_names" class="is-primary has-text-centered" :style="{ width: `${100 / num_quarters}%`, textAlign: 'center'}">
+                     {{q}}
                   </th>
                </tr>
 
@@ -495,7 +501,7 @@
                         
                         <table class="table is-striped is-fullwidth">
                            <tr>
-                              <td v-for="(q, idx) in quarter_names" style="text-align: center; background-color: wheat;">
+                              <td v-for="(q, idx) in quarter_names" :style="{ width: `${100 / num_quarters}%`, textAlign: 'center', backgroundColor: 'wheat'}">
                                  <div class="tile is-ancestor">
                                     <div class="tile"> 
                                        <div class="tile is-parent is-vertical">
@@ -505,7 +511,7 @@
                                              <div class="columns">
                                                 <div class="column is-one-quarter"></div>
                                                 <div class="column is-half">
-                                                   <p class="subtitle is-5">{{c.name}}</p>
+                                                   <p class="subtitle is-6" :style="{ marginTop: `9px`}">{{c.name}}</p>
                                                 </div>
                                                 <div class="column">
                                                    <button class="button is-link is-inverted" v-if="hovered_match == q + c.id + ' ' + p.id" @click="delete_match(c.id, p.id, idx)">
@@ -532,8 +538,8 @@
                                                 </div>
                                                 <div class="dropdown-menu" id="dropdown-menu3" role="menu">
                                                    <div class="dropdown-content">
-                                                      <a class="dropdown-item" v-for="p in professors" @click="add_match(c.id, p.id, idx)">
-                                                         {{p.name}}
+                                                      <a class="dropdown-item" v-for="c in classes" @click="add_match(c.id, p.id, idx)">
+                                                         {{c.name}}
                                                       </a>
                                                    </div>
                                                 </div>

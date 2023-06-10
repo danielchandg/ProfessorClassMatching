@@ -3016,6 +3016,36 @@ a.has-text-danger-dark:hover, a.has-text-danger-dark:focus {
   margin-bottom: auto !important;
 }
 
+.m-large {
+  margin: 8.25rem !important;
+}
+
+.mt-large {
+  margin-top: 8.25rem !important;
+}
+
+.mr-large {
+  margin-right: 8.25rem !important;
+}
+
+.mb-large {
+  margin-bottom: 8.25rem !important;
+}
+
+.ml-large {
+  margin-left: 8.25rem !important;
+}
+
+.mx-large {
+  margin-left: 8.25rem !important;
+  margin-right: 8.25rem !important;
+}
+
+.my-large {
+  margin-top: 8.25rem !important;
+  margin-bottom: 8.25rem !important;
+}
+
 .p-0 {
   padding: 0 !important;
 }
@@ -3254,6 +3284,36 @@ a.has-text-danger-dark:hover, a.has-text-danger-dark:focus {
 .py-auto {
   padding-top: auto !important;
   padding-bottom: auto !important;
+}
+
+.p-large {
+  padding: 8.25rem !important;
+}
+
+.pt-large {
+  padding-top: 8.25rem !important;
+}
+
+.pr-large {
+  padding-right: 8.25rem !important;
+}
+
+.pb-large {
+  padding-bottom: 8.25rem !important;
+}
+
+.pl-large {
+  padding-left: 8.25rem !important;
+}
+
+.px-large {
+  padding-left: 8.25rem !important;
+  padding-right: 8.25rem !important;
+}
+
+.py-large {
+  padding-top: 8.25rem !important;
+  padding-bottom: 8.25rem !important;
 }
 
 .is-size-1 {
