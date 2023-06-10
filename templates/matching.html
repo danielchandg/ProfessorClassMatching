@@ -311,8 +311,8 @@
                   <div class="columns control is-mobile">
                      <div class="column is-3">
                         <input class="input is-static has-text-weight-bold" value="Quarter" readonly>
-                        <input v-for="(quarter) in quarter_names" class="input is-static" :value="quarter" readonly
-                               :class="{ 'mb-large': quarter !== 'Summer' }"
+                        <input v-for="(quarter, idx2) in quarter_names" class="input is-static" :value="quarter" readonly
+                               :class="{ 'mb-large': idx2 + 1 !== quarter_names.length }"
                         >
                      </div>
                      <div class="column is-4">
