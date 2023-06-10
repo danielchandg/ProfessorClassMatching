@@ -49,11 +49,80 @@ def index():
 @action('load_matchings')
 @action.uses(url_signer.verify(), db, auth.user)
 def load_matchings():
-    # db(db.matchings).delete()
     my_settings = db(db.settings.user_id == get_user_id()).select().first()
+
+    # User has just registered
     if my_settings is None:
         db.settings.insert() # Ensure the current user has an entry in db.settings
         my_settings = db(db.settings.user_id == get_user_id()).select().first()
+
+        # Add a sample matching
+        with open('sample_matching.json') as sample_matching_file:
+            sample_matching = json.load(sample_matching_file)
+                
+        created_on = request.params.get('created_on')
+        matching_id = db.matchings.insert(
+            name = sample_matching.get('name'),
+            description = sample_matching.get('description'),
+            num_quarters = sample_matching.get('num_quarters'),
+            quarter_names = sample_matching.get('quarter_names'),
+            time_created = created_on
+        )
+
+        class_names, professor_names = [], []
+        class_name_to_id, professor_name_to_id = {}, {}
+
+        for sample_class in sample_matching.get('classes'):
+            class_abbrev = sample_class.get('name')
+            class_abbrev = class_abbrev[:class_abbrev.find(':')]
+            class_abbrev = class_abbrev.replace(' ', '')
+            class_abbrev = class_abbrev.lower()
+            class_website = 'https://courses.engineering.ucsc.edu/courses/' + class_abbrev
+
+            class_id = db.classes.insert(
+                name = sample_class.get('name'),
+                matching_id = matching_id,
+                description = class_website,
+                num_sections = sample_class.get('num_sections'),
+                time_created = created_on
+            )
+
+            class_names.append(sample_class.get('name'))
+            class_name_to_id[sample_class.get('name')] = class_id
+        
+        for sample_professor in sample_matching.get('professors'):
+            left_paren, right_paren = sample_professor.find('('), sample_professor.find(')')
+            if left_paren != -1 and right_paren != -1:
+                professor_abbrev = sample_professor[left_paren+1:right_paren]
+                professor_website = 'https://campusdirectory.ucsc.edu/cd_detail?uid=' + professor_abbrev
+            else:
+                professor_website = 'https://engineering.ucsc.edu/departments/computer-science-and-engineering/people/'
+            
+            professor_id = db.professors.insert(
+                name_ = sample_professor,
+                matching_id = matching_id,
+                description = professor_website,
+                time_created = created_on
+            )
+
+            professor_names.append(sample_professor)
+            professor_name_to_id[sample_professor] = professor_id
+        
+        for sample_match in sample_matching.get('matches'):
+            professors = list(filter(lambda x: sample_match.get('professor') in x, professor_names))
+            classes = list(filter(lambda x: sample_match.get('class') + ':' in x, class_names))
+            quarter = sample_matching.get('quarter_names').index(sample_match.get('quarter'))
+            assert len(professors) == 1
+            assert len(classes) == 1
+            assert quarter != -1
+            db.matches.insert(
+                matching_id = matching_id,
+                class_id = class_name_to_id.get(classes[0]),
+                professor_id = professor_name_to_id.get(professors[0]),
+                quarter = quarter,
+                time_created = created_on
+            )
+
     matchings = db(db.matchings.user_id == get_user_id()).select()
     matching_ids = []
     for m in matchings:

@@ -230,7 +230,7 @@
       <h1 class="title">This is view 1</h1>
 
       <div class="columns">
-         <div class="column">
+         <div class="column is-6">
             <h1 class="title">Classes</h1>
             <div v-for="(c, idx) in classes" class="panel">
                <div class="panel-heading" @click="left_sel == c.id ? left_sel = 0 : left_sel = c.id">
@@ -299,7 +299,7 @@
                <button class="modal-close is-large" aria-label="close" @click="set_add_class_status(false)"></button>
             </div>
          </div>
-         <div class="column">
+         <div class="column is-6">
             <h1 class="title">Professors</h1>
             <div v-for="(p, idx) in professors" class="panel">
                <div class="panel-heading" @click="right_sel == p.id ? right_sel = 0 : right_sel = p.id">

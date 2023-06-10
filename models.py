@@ -22,7 +22,8 @@ def get_time():
 # Then her 'matching_ids' should be [1,4,6].
 db.define_table('settings',
                 Field('user_id', 'reference auth_user', default=get_user_id),
-                Field('matching_ids', 'list:integer', default=[])
+                Field('matching_ids', 'list:integer', default=[]),
+                Field('tutorial', 'list:string', default=[]) # What tutorial pop-ups the user has encountered
                 )
 
 # This table stores the matchings of all users.
