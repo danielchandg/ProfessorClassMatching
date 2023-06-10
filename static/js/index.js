@@ -275,7 +275,8 @@ let init = function (app) {
   });
 
   app.init = () => {
-    axios.get(load_matchings_url).then((response) => {
+    const curTime = new Date().toString();
+    axios.get(load_matchings_url, { params: { created_on: curTime }}).then((response) => {
       app.vue.matchings = app.enumerate(response.data.matchings);
       app.reset_matching_form();
     }).catch(function (error) {
