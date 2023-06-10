@@ -385,7 +385,7 @@
          <table class ="table is-striped is-fullwidth">
             <thead>
                <tr class="is-flex is-justify-content-space-between">
-                  <th v-for="q in quarter_names" class="blue-background has-text-centered">
+                  <th v-for="q in quarter_names" class="is-primary has-text-centered" :style="{ width: `${100 / num_quarters}%`, textAlign: 'center'}">
                         {{q}}
                   </th>
                </tr>
@@ -406,9 +406,9 @@
 
                                           <div class="tile is-child box notification custom-tile" v-for="p in view_2_data[c.id][idx]" @mouseover="hover_match_menu(q + c.id + ' ' + p.id)" @mouseout="unhover_match_menu()">
                                              <div class="columns">
-                                                
+                                                <div class="column is-one-quarter"></div>
                                                 <div class="column is-half">
-                                                   <p class="subtitle is-5">{{p.name}}</p>
+                                                   <p class="subtitle is-6" :style="{ marginTop: `9px`}">{{p.name}}</p>
                                                 </div>
                                                 <div class="column">
                                                    <button class="button is-link is-inverted" v-if="hovered_match == q + c.id + ' ' + p.id" @click="delete_match(c.id, p.id, idx)">
@@ -424,7 +424,7 @@
                                           </div>
 
                                           <div class="tile is-child" v-if="hovered_class_term == c.id + q">
-                                             <div class="dropdown" @mouseenter="dropdown_hover = true" @mouseleave="dropdown_hover = false" :class="{ 'is-active': dropdown_hover}">
+                                             <div class="dropdown" @mouseover="dropdown_hover = true" @mouseout="dropdown_hover = false" :class="{ 'is-active': dropdown_hover}">
                                                 <div class="dropdown-trigger">
                                                    <button class="button is-link is-outlined" aria-haspopup="true" aria-controls="dropdown-menu3">
                                                       <span><i class="fa fa-plus">&nbsp;&nbsp;Add Professor&nbsp;&nbsp;</i></span>
@@ -444,7 +444,7 @@
                                              </div>
                                           </div>
 
-                                          <div class="tile is-child" v-else @mouseenter="hover_dropdown_menu(c.id + q)" @mouseleave="unhover_dropdown_menu()">
+                                          <div class="tile is-child" v-else @mouseover="hover_dropdown_menu(c.id + q)" @mouseout="unhover_dropdown_menu()">
                                              <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                                           </div>
 
@@ -485,9 +485,9 @@
       <div class="container">
          <table class ="table is-striped is-fullwidth">
             <thead>
-               <tr class="is-flex is-justify-content-space-between">
-                  <th v-for="q in quarter_names" class="blue-background has-text-centered">
-                        {{q}}
+               <tr>
+                  <th v-for="q in quarter_names" class="is-primary has-text-centered" :style="{ width: `${100 / num_quarters}%`, textAlign: 'center'}">
+                     {{q}}
                   </th>
                </tr>
 
@@ -510,7 +510,7 @@
                                              <div class="columns">
                                                 <div class="column is-one-quarter"></div>
                                                 <div class="column is-half">
-                                                   <p class="subtitle is-5">{{c.name}}</p>
+                                                   <p class="subtitle is-6" :style="{ marginTop: `9px`}">{{c.name}}</p>
                                                 </div>
                                                 <div class="column">
                                                    <button class="button is-link is-inverted" v-if="hovered_match == q + c.id + ' ' + p.id" @click="delete_match(c.id, p.id, idx)">
