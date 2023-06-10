@@ -51,9 +51,20 @@ def index():
 def load_matchings():
     # db(db.matchings).delete()
     my_settings = db(db.settings.user_id == get_user_id()).select().first()
+
+    # User has just registered
     if my_settings is None:
         db.settings.insert() # Ensure the current user has an entry in db.settings
         my_settings = db(db.settings.user_id == get_user_id()).select().first()
+
+        # Add a sample matching
+        sample_name = 'Schedule of Courses: Computer Science: 2023-2024'
+        sample_description = 'These are the CS courses offered for the 2023-2024 school year.'
+        sample_num_quarters = 4
+        sample_quarter_names = ['Fall 2023', 'Winter 2024', 'Spring 2024', 'Summer 2024']
+        with open('sample_classes.json') as sample_classes_file:
+            sample_classes = json.load(sample_classes_file)
+
     matchings = db(db.matchings.user_id == get_user_id()).select()
     matching_ids = []
     for m in matchings:

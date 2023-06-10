@@ -1,0 +1,95 @@
+[
+  {
+      "name": "CSE 3: Personal Computer Concepts: Software and Hardware",
+      "description": "",
+      "num_sections": [1, 1, 1, 0]
+  },
+  {
+      "name": "CSE 12: Computer Systems and Assembly Language and Lab",
+      "description": "",
+      "num_sections": [2, 2, 2, 0]
+  },
+  {
+      "name": "CSE 13S: Computer Systems and C Programming",
+      "description": "",
+      "num_sections": [2, 3, 3, 0]
+  },
+  {
+      "name": "CSE 16: Applied Discrete Mathematics",
+      "description": "",
+      "num_sections": [2, 3, 2, 0]
+  },
+  {
+      "name": "CSE 20: Beginning Programming in Python",
+      "description": "",
+      "num_sections": [3, 3, 2, 0]
+  },
+  {
+      "name": "CSE 30: Programming Abstractions: Python",
+      "description": "",
+      "num_sections": [2, 2, 2, 0]
+  },
+  {
+      "name": "CSE 40: Machine Learning Basics: Data Analysis and Empirical Methods",
+      "description": "",
+      "num_sections": [1, 1, 0, 0]
+  },
+  {
+      "name": "CSE 80N: Introduction to Networking and the Internet",
+      "description": "",
+      "num_sections": [1, 1, 1, 0]
+  },
+  {
+      "name": "CSE 100: Logic Design",
+      "description": "",
+      "num_sections": [1, 1, 1, 0]
+  },
+  {
+      "name": "CSE 101: Introduction to Data Structures and Algorithms",
+      "description": "",
+      "num_sections": [3, 2, 3, 0]
+  },
+  {
+      "name": "CSE 102: Introduction to Analysis of Algorithms",
+      "description": "",
+      "num_sections": [1, 1, 1, 0]
+  },
+  {
+      "name": "CSE 103: Computational Models",
+      "description": "",
+      "num_sections": [1, 1, 1, 0]
+  },
+  {
+      "name": "CSE 104: Computability and Computational Complexity",
+      "description": "",
+      "num_sections": [0, 1, 0, 0]
+  },
+  {
+      "name": "CSE 105: Modern Algorithmic Toolbox",
+      "description": "",
+      "num_sections": [0, 0, 1, 0]
+  },
+  {
+      "name": "CSE 107: Probability and Statistics for Engineers",
+      "description": "",
+      "num_sections": [1, 1, 1, 0]
+  },
+  {
+    "name": "CSE 108: Algorithmic Foundations of Cryptography",
+    "description": "",
+    "num_sections": [0, 0, 1, 0]
+  },
+  {
+    "name": "CSE 113: Parallel Programming",
+    "description": "",
+    "num_sections": [0, 1, 0, 0]
+  },
+  {
+    "name": "CSE 114A: Foundations of Programming Languages",
+    "description": "",
+    "num_sections": [1, 1, 2, 0]
+  },
+  {
+    "name": "Cse 115A"
+  }
+]
