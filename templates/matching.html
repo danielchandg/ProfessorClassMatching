@@ -227,6 +227,19 @@
    </div>
 
    <div v-if="view === 1">
+      <div class="modal" :class="{ 'is-active': view1_tutorial_mode }">
+         <div class="modal-background"></div>
+         <div class="modal-content">
+            <div class="box">
+               <div class="content">
+                  <h1>Welcome to View 1</h1>
+                  <p>Here, you can add, edit, and delete classes and professors in your schedule. You can click on a class or professor to view or edit its details.</p>
+               </div>
+            </div>
+         </div>
+         <button class="modal-close is-large" aria-label="close" @click="dismiss_view_tutorial"></button>
+      </div>
+
       <h1 class="title">This is view 1</h1>
 
       <div class="columns">
@@ -382,6 +395,19 @@
    <div v-if="view === 2">
       <h1 class="title">This is view 2</h1>
       <!-- Insert content of view 2 here -->
+      <div class="modal" :class="{ 'is-active': view2_tutorial_mode }">
+         <div class="modal-background"></div>
+         <div class="modal-content">
+            <div class="box">
+               <div class="content">
+                  <h1>Welcome to View 2</h1>
+                  <p>Here, you can add and delete professors in your schedule.</p>
+               </div>
+            </div>
+         </div>
+         <button class="modal-close is-large" aria-label="close" @click="dismiss_view_tutorial"></button>
+      </div>
+
       <div class="container">
          <table class ="table is-striped is-fullwidth">
             <thead>
@@ -482,6 +508,18 @@
    <div v-if="view === 3">
       <h1 class="title">This is view 3</h1>
       <!-- Insert content of view 3 here -->
+      <div class="modal" :class="{ 'is-active': view3_tutorial_mode }">
+         <div class="modal-background"></div>
+         <div class="modal-content">
+            <div class="box">
+               <div class="content">
+                  <h1>Welcome to View 3</h1>
+                  <p>Here, you can add and delete classes in your schedule.</p>
+               </div>
+            </div>
+         </div>
+         <button class="modal-close is-large" aria-label="close" @click="dismiss_view_tutorial"></button>
+      </div>
 
       <div class="container">
          <table class ="table is-striped is-fullwidth">

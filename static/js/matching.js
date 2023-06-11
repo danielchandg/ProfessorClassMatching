@@ -13,6 +13,9 @@ let init = function (app) {
     num_quarters: 0,
     quarter_names: [],
 
+    view1_tutorial_mode: true,
+    view2_tutorial_mode: true,
+    view3_tutorial_mode: true,
     view: 0, // View that the user is on
     classes: [],
     professors: [],
@@ -679,6 +682,16 @@ let init = function (app) {
     return drop_classes;
   }
 
+  app.dismiss_view_tutorial = function () {
+    if (app.vue.view === 1) {
+      app.vue.view1_tutorial_mode = false;
+    } else if (app.vue.view === 2) {
+      app.vue.view2_tutorial_mode = false;
+    } else if (app.vue.view === 3) {
+      app.vue.view3_tutorial_mode = false;
+    }
+  }
+
   app.methods = {
     add_class: app.add_class,
     edit_class: app.edit_class,
@@ -705,6 +718,7 @@ let init = function (app) {
     get_drop_classes: app.get_drop_classes,
     hover_match_menu: app.hover_match_menu,
     unhover_match_menu: app.unhover_match_menu,
+    dismiss_view_tutorial: app.dismiss_view_tutorial,
   }
 
   app.vue = new Vue({
