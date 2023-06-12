@@ -13,6 +13,7 @@ let init = function (app) {
     edit_matching_num_quarters: 0, // Number of quarters of the matching being edited
     editing_index: -1,
     edit_mode: false, // Is the user currently editing a matching?
+    tutorial_mode: true,
   };
 
   app.enumerate = function (a) {
@@ -256,6 +257,10 @@ let init = function (app) {
     app.vue.edit_mode = new_status;
   }
 
+  app.dismiss_tutorial = function () {
+    app.vue.tutorial_mode = false;
+  }
+
   app.methods = {
     add_matching: app.add_matching, // Done
     goto_matching: app.goto_matching, // Done
@@ -266,6 +271,7 @@ let init = function (app) {
     parseDate: app.parseDate,
     set_edit_status: app.set_edit_status,
     save_matching: app.save_matching,
+    dismiss_tutorial: app.dismiss_tutorial,
   }
 
   app.vue = new Vue({
