@@ -23,7 +23,9 @@ def get_time():
 db.define_table('settings',
                 Field('user_id', 'reference auth_user', default=get_user_id),
                 Field('matching_ids', 'list:integer', default=[]),
-                Field('tutorial', 'list:string', default=[]) # What tutorial pop-ups the user has encountered
+                Field('view1_tutorial_mode', 'boolean', default=True),
+                Field('view2_tutorial_mode', 'boolean', default=True),
+                Field('view3_tutorial_mode', 'boolean', default=True),
                 )
 
 # This table stores the matchings of all users.

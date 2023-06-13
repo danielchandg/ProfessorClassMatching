@@ -13,7 +13,7 @@ let init = function (app) {
     edit_matching_num_quarters: 0, // Number of quarters of the matching being edited
     editing_index: -1,
     edit_mode: false, // Is the user currently editing a matching?
-    tutorial_mode: true,
+    tutorial_mode: false,
   };
 
   app.enumerate = function (a) {
@@ -284,6 +284,7 @@ let init = function (app) {
     const curTime = new Date().toString();
     axios.get(load_matchings_url, { params: { created_on: curTime }}).then((response) => {
       app.vue.matchings = app.enumerate(response.data.matchings);
+      app.vue.tutorial_mode = response.data.tutorial_mode;
       app.reset_matching_form();
     }).catch(function (error) {
       console.error(`Failed to load matchings:`, error);

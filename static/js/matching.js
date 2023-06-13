@@ -13,9 +13,9 @@ let init = function (app) {
     num_quarters: 0,
     quarter_names: [],
 
-    view1_tutorial_mode: true,
-    view2_tutorial_mode: true,
-    view3_tutorial_mode: true,
+    view1_tutorial_mode: view1_tutorial_mode_init == 'True',
+    view2_tutorial_mode: view2_tutorial_mode_init == 'True',
+    view3_tutorial_mode: view3_tutorial_mode_init == 'True',
     view: 0, // View that the user is on
     classes: [],
     professors: [],
@@ -683,13 +683,21 @@ let init = function (app) {
   }
 
   app.dismiss_view_tutorial = function () {
-    if (app.vue.view === 1) {
+    const view = app.vue.view;
+    if (view === 1) {
       app.vue.view1_tutorial_mode = false;
-    } else if (app.vue.view === 2) {
+    } else if (view === 2) {
       app.vue.view2_tutorial_mode = false;
-    } else if (app.vue.view === 3) {
+    } else if (view === 3) {
       app.vue.view3_tutorial_mode = false;
     }
+    axios.post(view_tutorial_url, {
+      view: view,
+    }).then(function (response) {
+      console.log(`Viewed tutorial View ${view}`);
+    }).catch(function (error) {
+      console.log(`Error when viewing tutorial View ${view}.`, error);
+    });
   }
 
   app.methods = {

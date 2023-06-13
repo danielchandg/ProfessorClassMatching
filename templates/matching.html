@@ -228,7 +228,7 @@
 
    <div v-if="view === 1">
       <div class="modal" :class="{ 'is-active': view1_tutorial_mode }">
-         <div class="modal-background"></div>
+         <div class="modal-background" @click="dismiss_view_tutorial"></div>
          <div class="modal-content">
             <div class="box">
                <div class="content">
@@ -399,7 +399,7 @@
       <h1 class="title">This is view 2</h1>
       <!-- Insert content of view 2 here -->
       <div class="modal" :class="{ 'is-active': view2_tutorial_mode }">
-         <div class="modal-background"></div>
+         <div class="modal-background" @click="dismiss_view_tutorial"></div>
          <div class="modal-content">
             <div class="box">
                <div class="content">
@@ -516,7 +516,7 @@
       <h1 class="title">This is view 3</h1>
       <!-- Insert content of view 3 here -->
       <div class="modal" :class="{ 'is-active': view3_tutorial_mode }">
-         <div class="modal-background"></div>
+         <div class="modal-background" @click="dismiss_view_tutorial"></div>
          <div class="modal-content">
             <div class="box">
                <div class="content">
@@ -672,6 +672,10 @@
    const delete_professor_url = "[[=XML(delete_professor_url)]]";
    const add_match_url = "[[=XML(add_match_url)]]";
    const delete_match_url = "[[=XML(delete_match_url)]]";
+   const view_tutorial_url = "[[=XML(view_tutorial_url)]]";
+   const view1_tutorial_mode_init = "[[=view1_tutorial_mode]]";
+   const view2_tutorial_mode_init = "[[=view2_tutorial_mode]]";
+   const view3_tutorial_mode_init = "[[=view3_tutorial_mode]]";
 </script>
 <script src="js/matching.js"></script>
 [[end]]

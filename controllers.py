@@ -29,6 +29,7 @@ from py4web import action, request, abort, URL
 from py4web.utils.url_signer import URLSigner
 from .common import db, session, Field, T, cache, auth, logger, authenticated, unauthenticated, flash
 from .models import get_user_id, get_time
+from .sample_matching import sample_matching
 from pydal.validators import *
 import json
 
@@ -50,16 +51,15 @@ def index():
 @action.uses(url_signer.verify(), db, auth.user)
 def load_matchings():
     my_settings = db(db.settings.user_id == get_user_id()).select().first()
+    tutorial_mode = False
 
     # User has just registered
     if my_settings is None:
+        tutorial_mode = True
         db.settings.insert() # Ensure the current user has an entry in db.settings
         my_settings = db(db.settings.user_id == get_user_id()).select().first()
 
         # Add a sample matching
-        with open('sample_matching.json') as sample_matching_file:
-            sample_matching = json.load(sample_matching_file)
-                
         created_on = request.params.get('created_on')
         matching_id = db.matchings.insert(
             name = sample_matching.get('name'),
@@ -122,6 +122,12 @@ def load_matchings():
                 quarter = quarter,
                 time_created = created_on
             )
+    elif my_settings.view1_tutorial_mode is None:
+        # Make sure settings are initialized for previously created users
+        my_settings.view1_tutorial_mode = True
+        my_settings.view2_tutorial_mode = True
+        my_settings.view3_tutorial_mode = True
+        my_settings.update_record()
 
     matchings = db(db.matchings.user_id == get_user_id()).select()
     matching_ids = []
@@ -137,7 +143,7 @@ def load_matchings():
     my_settings.matching_ids = matching_ids
     my_settings.update_record()
 
-    return dict(matchings=matchings)
+    return dict(matchings=matchings, tutorial_mode=tutorial_mode)
 
 # This route is for adding a matching
 @action('add_matching', method='POST')
@@ -283,7 +289,11 @@ def matching(my_id=None):
         edit_professor_url = URL('edit_professor', matching_id, signer=url_signer),
         delete_professor_url = URL('delete_professor', matching_id, signer=url_signer),
         add_match_url = URL('add_match', matching_id, signer=url_signer),
-        delete_match_url = URL('delete_match', matching_id, signer=url_signer)
+        delete_match_url = URL('delete_match', matching_id, signer=url_signer),
+        view_tutorial_url = URL('view_tutorial', signer=url_signer),
+        view1_tutorial_mode = my_settings.view1_tutorial_mode,
+        view2_tutorial_mode = my_settings.view2_tutorial_mode,
+        view3_tutorial_mode = my_settings.view3_tutorial_mode
     )
 
 # Loads the user's matching for their matching page
@@ -488,3 +498,17 @@ def delete_match(matching_id=None):
     assert set_matches.count() == 1
     set_matches.delete()
     return f'ok deleted match {id}'
+
+# Mark a tutorial as seen
+@action('view_tutorial', method='POST')
+@action.uses(url_signer.verify(), db, auth.user)
+def view_tutorial():
+    my_settings = db(db.settings.user_id == get_user_id()).select().first()
+    view = request.json.get('view')
+    if view == 1:
+        my_settings.view1_tutorial_mode = False
+    elif view == 2:
+        my_settings.view2_tutorial_mode = False
+    else:
+        my_settings.view3_tutorial_mode = False
+    my_settings.update_record()
