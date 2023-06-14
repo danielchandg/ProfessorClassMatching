@@ -412,17 +412,25 @@ def add_professor(matching_id=None):
     n = my_matching.num_quarters
     requested_classes = request.json.get('requested_classes')
     assert len(requested_classes) == n
+    matches = []
     for quarter in range(n):
         for class_id in requested_classes[quarter]:
             my_class = db.classes[class_id]
             assert my_class.matching_id == matching_id
-            db.class_requests.insert(
+            match_id = db.matches.insert(
                 matching_id = matching_id,
                 professor_id = professor_id,
                 class_id = class_id,
-                quarter = quarter
+                quarter = quarter,
+                time_created = request.json.get('created_on')
             )
-    return dict(id=professor_id)
+            matches.append({
+                'id': match_id,
+                'class_id': class_id,
+                'professor_id': professor_id,
+                'quarter': quarter
+            })
+    return dict(id=professor_id, matches=matches)
 
 # This route is for editing a professor
 @action('edit_professor/<matching_id:int>', method='POST')

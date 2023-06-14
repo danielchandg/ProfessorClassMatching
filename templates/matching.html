@@ -335,7 +335,7 @@
                         <input class="input is-static has-text-weight-bold" value="Courses" readonly>
                         <div v-for="(q, idx2) in quarter_names" class="field">
                            <div class="select is-multiple">
-                              <select multiple v-model="professors[idx].requested_classes[idx2]" @change="edit_professor(idx, idx2)">
+                              <select multiple v-model="p.id == -1 ? [] : view_1_data[p.id][idx2]" @change="edit_professor(p.id, idx2)">
                                  <option v-for="c in classes" :value="c.id">{{ c.name }}</option>
                               </select>
                            </div>
@@ -450,9 +450,7 @@
                                                          <i class="fa fa-times"></i>
                                                       </span>
                                                    </button>
-                                                   <button class="button is-link is-inverted" v-else>
-                                                      <span>&nbsp;</span>
-                                                   </button>
+                                                   <button class="button is-link is-inverted" v-else></button>
                                                 </div>
                                              </div>
                                           </div>
@@ -568,9 +566,7 @@
                                                          <i class="fa fa-times"></i>
                                                       </span>
                                                    </button>
-                                                   <button class="button is-link is-inverted" v-else>
-                                                      <span>&nbsp;</span>
-                                                   </button>
+                                                   <button class="button is-link is-inverted" v-else></button>
                                                 </div>
                                              </div>
                                           </div>

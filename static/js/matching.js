@@ -43,6 +43,12 @@ let init = function (app) {
     dropdown_hover_view3: false,
     view2_prof_class_quarter: {},
     view3_prof_class_quarter: {},
+
+    view_1_data: {},
+    // View 1 data is used to populate the professors list in View 1.
+    // view_1_data[professor ID]. First key is the professor ID.
+    // view_1_data[professor ID][quarter idx]. Second key is the quarter number (0-indexed).
+    // view_1_data[professor ID][quarter idx] is an array of class IDs.
     
     view_2_data: {},
     // view_2_data is the data used to populate View 2.
@@ -184,20 +190,9 @@ let init = function (app) {
         }
       }
 
-      // Rebuild view 2 and view 3 data.
-      app.init_view_2_3_data();
+      // Rebuild View 1, View 2, and View 3 data.
+      app.init_view123_data();
 
-      // Delete class requests that are of this class.
-      for (let i=0; i<app.vue.professors.length; i++) {
-        for (let j=0; j<app.vue.num_quarters; j++) {
-          for (let k=0; k<app.vue.professors[i].requested_classes[j].length; k++) {
-            if (app.vue.professors[i].requested_classes[j][k] === id) {
-              app.vue.professors[i].requested_classes[j].splice(k, 1);
-              k--;
-            }
-          }
-        }
-      }
     }).catch(function (error) {
       console.error(`Error when deleting class ${name}:`, error);
       app.vue.classes.push({
@@ -218,6 +213,7 @@ let init = function (app) {
     const name = app.vue.add_professor_name;
     const description = app.vue.add_professor_description;
     const requested_classes = app.vue.add_professor_classes;
+    console.log(requested_classes.length, app.vue.num_quarters);
     for (let i=0; i<app.vue.num_quarters; i++) {
       for (let j=0; j<requested_classes[i].length; j++) {
         if (requested_classes[i][j] < 0) {
@@ -252,7 +248,16 @@ let init = function (app) {
         console.error(`After adding professor, unable to add ID ${response.data.id}`);
       }
       else {
-        app.vue.view_3_data[response.data.id] = Array.from(Array(app.vue.num_quarters), () => []);
+        response.data.matches.forEach((m) => 
+          app.vue.matches.push({
+            id: m.id,
+            class_id: m.class_id,
+            professor_id: m.professor_id,
+            quarter: m.quarter,
+            created_on: curTime.toString()
+          })
+        );
+        app.init_view123_data();
         app.force_update_dropdown_menu();
       }
     }).catch(function (error) {
@@ -292,25 +297,23 @@ let init = function (app) {
     app.vue.add_professor_classes = Array(app.vue.num_quarters).fill([]);
   }
 
-  app.edit_professor = function (idx, idx2) {
-    const id = app.vue.professors[idx].id;
-    const quarter = idx2;
-    const requested_classes =  app.vue.professors[idx].requested_classes[quarter];
-    const all_classes = app.vue.classes.map(c => c.id)
-    const non_requested_classes = all_classes.filter(c_id => !requested_classes.includes(c_id))
-    // console.log(`requested classes: ${requested_classes}`)
-    // console.log(`all classes: ${all_classes}`)
-    // console.log(`non-requested classes: ${non_requested_classes}`)
+  app.edit_professor = function (professor_id, quarter) {
+    // Either we added a match or deleted a match
+    const new_matches = app.vue.view_1_data[professor_id][quarter].slice();
+    const old_matches = app.vue.view_3_data[professor_id][quarter].slice();
+    
+    // First check if we added a match
+    new_matches.forEach((class_id) => {
+      if (old_matches.filter((m) => (m.id === class_id)).length === 0) {
+        app.add_match(class_id, professor_id, quarter, true);
+      }
+    });
 
-    axios.post(edit_professor_url, {
-      id: id,
-      quarter: quarter,
-      requested_classes: requested_classes,
-      non_requested_classes: non_requested_classes
-    }).then(function (response) {
-      console.log(`Edited professor ${app.vue.professors[idx].name}`);
-    }).catch(function (error) {
-      console.error(`Error when editing professor${app.vue.professors[idx].name}`, error);
+    // Second check if we deleted a match
+    old_matches.forEach((m) => {
+      if (new_matches.filter((class_id) => (m.id === class_id)).length === 0) {
+        app.delete_match(m.id, professor_id, quarter, true);
+      }
     });
   }
 
@@ -345,7 +348,7 @@ let init = function (app) {
       }
 
       // Rebuild view 2 and view 3 data.
-      app.init_view_2_3_data();
+      app.init_view123_data();
 
     }).catch(function (error) {
       console.error(`Error when deleting professor ${name}:`, error);
@@ -382,7 +385,7 @@ let init = function (app) {
     app.add_match(Class.id, Professor.id, Quarter);
   }
 
-  app.add_match = function (class_id, professor_id, quarter) {
+  app.add_match = function (class_id, professor_id, quarter, is_view1=false) {
     const curTime = new Date();
     const Class = app.vue.classes.find((c) => c.id === class_id);
     if(Class === undefined){
@@ -407,6 +410,10 @@ let init = function (app) {
       quarter: quarter,
       created_on: curTime.toString()
     });
+    // It's possible the match was added directly in view_1_data. In that case, don't add it again.
+    if (!is_view1) {
+      app.vue.view_1_data[professor_id][quarter].push(class_id);
+    }
     app.vue.view_2_data[class_id][quarter].push({id: professor_id, name: Professor.name});
     app.vue.view_3_data[professor_id][quarter].push({id: class_id, name: Class.name});
     app.force_update_dropdown_menu();
@@ -442,15 +449,20 @@ let init = function (app) {
   }
 
   // Given the match's class id and professor id, removes it from app.vue.matches, app.vue.view_2_data, and app.vue.view_3_data
-  app.remove_local_match = function (class_id, professor_id, quarter) {
+  app.remove_local_match = function (class_id, professor_id, quarter, is_view1=false) {
     for (let i = app.vue.matches.length - 1; i >= 0; i--) {
       if(app.vue.matches[i].class_id === class_id && app.vue.matches[i].professor_id === professor_id && app.vue.matches[i].quarter === quarter) {
         let match_id = app.vue.matches[i].id;
         if (match_id <= 0) {
           return 0;
         }
+        let view_1_idx = app.vue.view_1_data[professor_id][quarter].findIndex((c) => c === class_id);
         let view_2_idx = app.vue.view_2_data[class_id][quarter].findIndex((p) => p.id === professor_id);
         let view_3_idx = app.vue.view_3_data[professor_id][quarter].findIndex((c) => c.id === class_id);
+        if (!is_view1 && view_1_idx < 0) {
+          console.error(`When deleting match, unable to find match [class #${class_id}, prof #${professor_id}, quarter ${quarter}] in view_1_data`);
+          return 0;
+        }
         if (view_2_idx < 0) {
           console.error(`When deleting match, unable to find match [class #${class_id}, prof #${professor_id}, quarter ${quarter}] in view_2_data`);
           return 0;
@@ -460,6 +472,9 @@ let init = function (app) {
           return 0;
         }
         app.vue.matches.splice(i, 1);
+        if (!is_view1) {
+          app.vue.view_1_data[professor_id][quarter].splice(view_1_idx, 1);
+        }
         app.vue.view_2_data[class_id][quarter].splice(view_2_idx, 1);
         app.vue.view_3_data[professor_id][quarter].splice(view_3_idx, 1);
         return match_id;
@@ -477,8 +492,12 @@ let init = function (app) {
     app.delete_match(class_id, professor_id, quarter);
   }
 
-  app.delete_match = function (class_id, professor_id, quarter) {
+  app.delete_match = function (class_id, professor_id, quarter, is_view1=false) {
     console.log(`Trying to delete match ${class_id}, ${professor_id}, ${quarter}`);
+    if (!(professor_id in app.vue.view_1_data)) {
+      console.error(`Error: When deleting match, unable to find professor ID ${professor_id} in view_1_data`);
+      return;
+    }
     if (!(class_id in app.vue.view_2_data)) {
       console.error(`Error: When deleting match, unable to find class ID ${class_id} in view_2_data`);
       return;
@@ -487,7 +506,7 @@ let init = function (app) {
       console.error(`Error: When deleting match, unable to find professor ID ${professor_id} in view_3_data`);
       return;
     }
-    let match_id = app.remove_local_match(class_id, professor_id, quarter);
+    let match_id = app.remove_local_match(class_id, professor_id, quarter, is_view1);
     if (match_id <= 0) {
       console.error(`Error: When deleting match, unable to find match [class #${class_id}, professor #${professor_id}, quarter ${quarter}] in matches`);
       return;
@@ -512,11 +531,13 @@ let init = function (app) {
     app.vue.add_match_quarter = -1;
   }
 
-  // Given app.vue.matches, this function generates the data to be displayed in View 2 and View 3.
+  // Given app.vue.matches, this function generates the data to be displayed in View 1, View 2, and View 3.
   // Specifically, app.vue.matches should be all the matches in this matching.
+  // This builds app.vue.view_1_data, which is the data displayed in the Professors list of View 1.
   // This builds app.vue.view_2_data, which is the data displayed in View 2.
   // This builds app.vue.view_3_data, which is the data displayed in View 3.
-  app.init_view_2_3_data = function () {
+  app.init_view123_data = function () {
+    app.vue.view_1_data = {};
     app.vue.view_2_data = {};
     app.vue.view_3_data = {};
     let class_id_to_name = {};
@@ -526,11 +547,16 @@ let init = function (app) {
     });
     let professor_id_to_name = {};
     app.vue.professors.forEach((p) => {
+      app.vue.view_1_data[p.id] = Array.from(Array(app.vue.num_quarters), () => []);
       app.vue.view_3_data[p.id] = Array.from(Array(app.vue.num_quarters), () => []);
       professor_id_to_name[p.id] = p.name;
     });
 
     app.vue.matches.forEach((m) => {
+      if (!(m.professor_id in app.vue.view_1_data)) {
+        console.error(`Found a match with professor ID ${m.professor_id}, which does not exist`);
+        return;
+      }
       if (!(m.class_id in app.vue.view_2_data)) {
         console.error(`Found a match with class ID ${m.class_id}, which does not exist`);
         return;
@@ -543,6 +569,7 @@ let init = function (app) {
         console.error(`Found a match with quarter ${m.quarter}, which does not exist`);
         return;
       }
+      app.vue.view_1_data[m.professor_id][m.quarter].push(m.class_id);
       app.vue.view_2_data[m.class_id][m.quarter].push({id: m.professor_id, name: professor_id_to_name[m.professor_id]});
       app.vue.view_3_data[m.professor_id][m.quarter].push({id: m.class_id, name: class_id_to_name[m.class_id]});
     });
@@ -750,7 +777,7 @@ let init = function (app) {
       app.reset_class_form();
       app.reset_professor_form();
       app.reset_match_form();
-      app.init_view_2_3_data();
+      app.init_view123_data();
 
     }).catch((error) => {
       console.error('Failed to load my matching:', error);
