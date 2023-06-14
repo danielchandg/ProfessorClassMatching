@@ -248,7 +248,7 @@
       <div class="columns">
          <div class="column is-6">
             <h1 class="title">Classes</h1>
-            <div v-for="(c, idx) in classes" class="panel">
+            <div v-for="c in classes" class="panel">
                <div class="panel-heading" @click="left_sel == c.id ? left_sel = 0 : left_sel = c.id">
                   <span class="icon" v-if="left_sel == c.id"><i class="fa fa-chevron-down"></i></span>
                   <span class="icon" v-else><i class="fa fa-chevron-right"></i></span>
@@ -650,7 +650,7 @@
 [[block page_menu_items_search]]
       <div class="navbar-item" id="app_search">
          <p class="control has-icons-right">
-         <input class="input" type="text" placeholder="Search">
+         <input class="input" type="text" placeholder="Search" v-model="searchQuery" @input="filterItems">
          <span class="icon is-right">
             <i class="fa fa-search"></i>
          </span>

@@ -7,6 +7,10 @@ let init = function (app) {
     left_sel: 0,
     right_sel: 0,
 
+    // search
+    // searchString: '',
+    // filteredClasses: [],
+
     // Details about this matching
     matching_name: '',
     matching_description: '',
@@ -18,7 +22,9 @@ let init = function (app) {
     view3_tutorial_mode: view3_tutorial_mode_init == 'True',
     view: 0, // View that the user is on
     classes: [],
+    allClasses: [], // Copy of the initial classes
     professors: [],
+    allProfessors: [], // Copy of the initial classes
     matches: [],
     add_class_name: '',
     add_class_description: '',
@@ -57,6 +63,17 @@ let init = function (app) {
     // view_3_data[professor ID][quarter idx] is an array of {id: <class ID>, name: <class name>}.
   };
 
+  // app.filterItems = function() {
+  //   if(app.vue.searchString == "") {
+  //     app.vue.filteredClasses = app.vue.classes;
+  //     return;
+  //   }
+  //   const search = app.vue.searchString.toLowerCase();
+
+  //   // Filter classes
+  //   app.vue.filteredClasses = app.vue.classes.filter((c) => c.name.toLowerCase().startsWith(search));
+  // };
+
   // This function is called to add a class.
   // app.vue.add_class_name is the name of the class.
   // app.vue.add_class_description is the description of the class.
@@ -74,6 +91,13 @@ let init = function (app) {
     const curTime = new Date();
     console.log(`Adding class ${name}`);
     app.vue.classes.push({
+      id: -1,
+      name: name,
+      description: description,
+      num_sections: num_sections,
+      created_on: curTime.toString()
+    });
+    app.vue.allClasses.push({
       id: -1,
       name: name,
       description: description,
@@ -109,6 +133,7 @@ let init = function (app) {
     for(let i = app.vue.classes.length - 1; i >= 0; i--) {
       if(app.vue.classes[i].name === name && app.vue.classes[i].id === -1) {
         app.vue.classes[i].id = id;
+        app.vue.allClasses[i].id = id;
         return true;
       }
     }
@@ -120,6 +145,7 @@ let init = function (app) {
     for (let i = app.vue.classes.length - 1; i >= 0; i--) {
       if (app.vue.classes[i].name === name) {
         app.vue.classes.splice(i, 1);
+        app.vue.allClasses.splice(i, 1);
         return true;
       }
     }
@@ -193,6 +219,7 @@ let init = function (app) {
           for (let k=0; k<app.vue.professors[i].requested_classes[j].length; k++) {
             if (app.vue.professors[i].requested_classes[j][k] === id) {
               app.vue.professors[i].requested_classes[j].splice(k, 1);
+              app.vue.allProfessors[i].requested_classes[j].splice(k, 1);
               k--;
             }
           }
@@ -201,6 +228,13 @@ let init = function (app) {
     }).catch(function (error) {
       console.error(`Error when deleting class ${name}:`, error);
       app.vue.classes.push({
+        id: id,
+        name: name,
+        description: description,
+        num_sections: num_sections,
+        created_on: created_on
+      });
+      app.vue.allClasses.push({
         id: id,
         name: name,
         description: description,
@@ -239,6 +273,13 @@ let init = function (app) {
       requested_classes: requested_classes,
       created_on: curTime.toString()
     });
+    app.vue.allProfessors.push({
+      id: -1,
+      name: name,
+      description: description,
+      requested_classes: requested_classes,
+      created_on: curTime.toString()
+    });
     app.reset_professor_form();
     app.vue.add_professor_mode = false;
     axios.post(add_professor_url, {
@@ -268,6 +309,7 @@ let init = function (app) {
     for(let i = app.vue.professors.length - 1; i >= 0; i--) {
       if(app.vue.professors[i].name === name && app.vue.professors[i].id === -1) {
         app.vue.professors[i].id = id;
+        app.vue.allProfessors[i].id = id;
         return true;
       }
     }
@@ -279,6 +321,7 @@ let init = function (app) {
     for (let i = app.vue.professors.length - 1; i >= 0; i--) {
       if (app.vue.professors[i].name === name) {
         app.vue.professors.splice(i, 1);
+        app.vue.allProfessors.splice(i, 1);
         return true;
       }
     }
@@ -350,6 +393,13 @@ let init = function (app) {
     }).catch(function (error) {
       console.error(`Error when deleting professor ${name}:`, error);
       app.vue.professors.push({
+        id: id,
+        name: name,
+        description: description,
+        requested_classes: requested_classes,
+        created_on: created_on
+      });
+      app.vue.allProfessors.push({
         id: id,
         name: name,
         description: description,
@@ -727,6 +777,7 @@ let init = function (app) {
     hover_match_menu: app.hover_match_menu,
     unhover_match_menu: app.unhover_match_menu,
     dismiss_view_tutorial: app.dismiss_view_tutorial,
+    //filterItems: app.filterItems,
   }
 
   app.vue = new Vue({
@@ -744,7 +795,9 @@ let init = function (app) {
       app.vue.quarter_names = response.data.quarter_names;
       
       app.vue.classes = response.data.classes;
+      app.vue.allClasses = response.data.classes;
       app.vue.professors = response.data.professors;
+      app.vue.allProfessors = response.data.professors;
       app.vue.matches = response.data.matches;
 
       app.reset_class_form();
@@ -821,9 +874,32 @@ let app_search= {};
 
 let init3 = function (app_search) {
 
-  app_search.data = {};
+  app_search.data = {
+    searchQuery: '', // The search query entered by the user
+    filteredClasses: [], // Array to store filtered classes based on search query
+    filteredProfessors: [], // Array to store filtered classes based on search query
+  };
 
-  app_search.methods = {};
+  app_search.filterItems = function () {
+    const query = app_search.vue.searchQuery.toLowerCase();
+    if (query === '') {
+      app_search.vue.filteredClasses = app.vue.allClasses;
+      app_search.vue.filteredProfessors = app.vue.allProfessors;
+    } else {
+      app_search.vue.filteredClasses = app.vue.allClasses.filter(function (c) {
+        return c.name.toLowerCase().startsWith(query);
+      });
+      app_search.vue.filteredProfessors = app.vue.allProfessors.filter(function (p) {
+        return p.name.toLowerCase().startsWith(query);
+      });
+    }
+    app.vue.classes = app_search.vue.filteredClasses;
+    app.vue.professors = app_search.vue.filteredProfessors;
+  };
+
+  app_search.methods = {
+    filterItems: app_search.filterItems,
+  };
 
   app_search.vue = new Vue({
     el: "#app_search",
@@ -832,7 +908,6 @@ let init3 = function (app_search) {
   });
 
   app_search.init3 = () => {
-
   };
 
   app_search.init3();
