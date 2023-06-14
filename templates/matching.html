@@ -335,7 +335,7 @@
                         <input class="input is-static has-text-weight-bold" value="Courses" readonly>
                         <div v-for="(q, idx2) in quarter_names" class="field">
                            <div class="select is-multiple">
-                              <select multiple v-model="professors[idx].requested_classes[idx2]" @change="edit_professor(idx, idx2)">
+                              <select multiple v-model="p.id == -1 ? [] : view_1_data[p.id][idx2]" @change="edit_professor(p.id, idx2)">
                                  <option v-for="c in classes" :value="c.id">{{ c.name }}</option>
                               </select>
                            </div>
@@ -438,21 +438,19 @@
                                     <div class="tile"> 
                                        <div class="tile is-parent is-vertical">
 
-                                          <div class="tile is-child box notification custom-tile" v-for="p in view_2_data[c.id][idx]" @mouseover="hover_match_menu(q + c.id + ' ' + p.id)" @mouseout="unhover_match_menu()">
+                                          <div class="tile is-child box notification custom-tile" v-for="(p, idx2) in view_2_data[c.id][idx]" @mouseover="hover_match_menu(q + idx2 + ' ' + p.id)" @mouseout="unhover_match_menu()">
                                              <div class="columns">
                                                 <div class="column is-one-quarter"></div>
                                                 <div class="column is-half">
                                                    <p class="subtitle is-6" :style="{ marginTop: `9px`}">{{p.name}}</p>
                                                 </div>
                                                 <div class="column">
-                                                   <button class="button is-link is-inverted" v-if="hovered_match == q + c.id + ' ' + p.id" @click="delete_match(c.id, p.id, idx)">
+                                                   <button class="button is-link is-inverted" v-if="hovered_match == q + idx2 + ' ' + p.id" @click="delete_match(c.id, p.id, idx)">
                                                       <span class="icon">
                                                          <i class="fa fa-times"></i>
                                                       </span>
                                                    </button>
-                                                   <button class="button is-link is-inverted" v-else>
-                                                      <span>&nbsp;</span>
-                                                   </button>
+                                                   <button class="button is-link is-inverted" v-else></button>
                                                 </div>
                                              </div>
                                           </div>
@@ -555,7 +553,7 @@
                                     <div class="tile"> 
                                        <div class="tile is-parent is-vertical">
 
-                                          <div class="tile is-child box notification custom-tile" v-for="c in view_3_data[p.id][idx]" @mouseover="hover_match_menu(q + c.id + ' ' + p.id)" @mouseout="unhover_match_menu()"> 
+                                          <div class="tile is-child box notification custom-tile" v-for="(c, idx2) in view_3_data[p.id][idx]" @mouseover="hover_match_menu(q + idx2 + ' ' + p.id)" @mouseout="unhover_match_menu()"> 
 
                                              <div class="columns">
                                                 <div class="column is-one-quarter"></div>
@@ -563,14 +561,12 @@
                                                    <p class="subtitle is-6" :style="{ marginTop: `9px`}">{{c.name}}</p>
                                                 </div>
                                                 <div class="column">
-                                                   <button class="button is-link is-inverted" v-if="hovered_match == q + c.id + ' ' + p.id" @click="delete_match(c.id, p.id, idx)">
+                                                   <button class="button is-link is-inverted" v-if="hovered_match == q + idx2 + ' ' + p.id" @click="delete_match(c.id, p.id, idx)">
                                                       <span class="icon">
                                                          <i class="fa fa-times"></i>
                                                       </span>
                                                    </button>
-                                                   <button class="button is-link is-inverted" v-else>
-                                                      <span>&nbsp;</span>
-                                                   </button>
+                                                   <button class="button is-link is-inverted" v-else></button>
                                                 </div>
                                              </div>
                                           </div>
