@@ -438,14 +438,14 @@
                                     <div class="tile"> 
                                        <div class="tile is-parent is-vertical">
 
-                                          <div class="tile is-child box notification custom-tile" v-for="p in view_2_data[c.id][idx]" @mouseover="hover_match_menu(q + c.id + ' ' + p.id)" @mouseout="unhover_match_menu()">
+                                          <div class="tile is-child box notification custom-tile" v-for="(p, idx2) in view_2_data[c.id][idx]" @mouseover="hover_match_menu(q + idx2 + ' ' + p.id)" @mouseout="unhover_match_menu()">
                                              <div class="columns">
                                                 <div class="column is-one-quarter"></div>
                                                 <div class="column is-half">
                                                    <p class="subtitle is-6" :style="{ marginTop: `9px`}">{{p.name}}</p>
                                                 </div>
                                                 <div class="column">
-                                                   <button class="button is-link is-inverted" v-if="hovered_match == q + c.id + ' ' + p.id" @click="delete_match(c.id, p.id, idx)">
+                                                   <button class="button is-link is-inverted" v-if="hovered_match == q + idx2 + ' ' + p.id" @click="delete_match(c.id, p.id, idx)">
                                                       <span class="icon">
                                                          <i class="fa fa-times"></i>
                                                       </span>
@@ -553,7 +553,7 @@
                                     <div class="tile"> 
                                        <div class="tile is-parent is-vertical">
 
-                                          <div class="tile is-child box notification custom-tile" v-for="c in view_3_data[p.id][idx]" @mouseover="hover_match_menu(q + c.id + ' ' + p.id)" @mouseout="unhover_match_menu()"> 
+                                          <div class="tile is-child box notification custom-tile" v-for="(c, idx2) in view_3_data[p.id][idx]" @mouseover="hover_match_menu(q + idx2 + ' ' + p.id)" @mouseout="unhover_match_menu()"> 
 
                                              <div class="columns">
                                                 <div class="column is-one-quarter"></div>
@@ -561,7 +561,7 @@
                                                    <p class="subtitle is-6" :style="{ marginTop: `9px`}">{{c.name}}</p>
                                                 </div>
                                                 <div class="column">
-                                                   <button class="button is-link is-inverted" v-if="hovered_match == q + c.id + ' ' + p.id" @click="delete_match(c.id, p.id, idx)">
+                                                   <button class="button is-link is-inverted" v-if="hovered_match == q + idx2 + ' ' + p.id" @click="delete_match(c.id, p.id, idx)">
                                                       <span class="icon">
                                                          <i class="fa fa-times"></i>
                                                       </span>

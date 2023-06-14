@@ -16,7 +16,7 @@ let init = function (app) {
     view1_tutorial_mode: view1_tutorial_mode_init == 'True',
     view2_tutorial_mode: view2_tutorial_mode_init == 'True',
     view3_tutorial_mode: view3_tutorial_mode_init == 'True',
-    view: 0, // View that the user is on
+    view: 1, // View that the user is on
     classes: [],
     professors: [],
     matches: [],
@@ -213,7 +213,6 @@ let init = function (app) {
     const name = app.vue.add_professor_name;
     const description = app.vue.add_professor_description;
     const requested_classes = app.vue.add_professor_classes;
-    console.log(requested_classes.length, app.vue.num_quarters);
     for (let i=0; i<app.vue.num_quarters; i++) {
       for (let j=0; j<requested_classes[i].length; j++) {
         if (requested_classes[i][j] < 0) {
