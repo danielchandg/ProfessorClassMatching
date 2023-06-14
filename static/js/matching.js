@@ -7,10 +7,6 @@ let init = function (app) {
     left_sel: 0,
     right_sel: 0,
 
-    // search
-    // searchString: '',
-    // filteredClasses: [],
-
     // Details about this matching
     matching_name: '',
     matching_description: '',
@@ -68,17 +64,6 @@ let init = function (app) {
     // view_3_data[professor ID][quarter idx]. Second key is the quarter number (0-indexed).
     // view_3_data[professor ID][quarter idx] is an array of {id: <class ID>, name: <class name>}.
   };
-
-  // app.filterItems = function() {
-  //   if(app.vue.searchString == "") {
-  //     app.vue.filteredClasses = app.vue.classes;
-  //     return;
-  //   }
-  //   const search = app.vue.searchString.toLowerCase();
-
-  //   // Filter classes
-  //   app.vue.filteredClasses = app.vue.classes.filter((c) => c.name.toLowerCase().startsWith(search));
-  // };
 
   // This function is called to add a class.
   // app.vue.add_class_name is the name of the class.
@@ -219,21 +204,17 @@ let init = function (app) {
       // Rebuild View 1, View 2, and View 3 data.
       app.init_view123_data();
 
-<<<<<<< HEAD
       // Delete class requests that are of this class.
       for (let i=0; i<app.vue.professors.length; i++) {
         for (let j=0; j<app.vue.num_quarters; j++) {
           for (let k=0; k<app.vue.professors[i].requested_classes[j].length; k++) {
             if (app.vue.professors[i].requested_classes[j][k] === id) {
               app.vue.professors[i].requested_classes[j].splice(k, 1);
-              app.vue.allProfessors[i].requested_classes[j].splice(k, 1);
               k--;
             }
           }
         }
       }
-=======
->>>>>>> 727d69832f90d4935c0a30a207225849e1c01d31
     }).catch(function (error) {
       console.error(`Error when deleting class ${name}:`, error);
       app.vue.classes.push({
