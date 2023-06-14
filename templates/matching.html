@@ -9,13 +9,13 @@
       background-color: lightskyblue;
       color: white  !important;
       text-align: center !important;
-      
+
    }
 
    .row-title{
       background-color: lightgray;
    }
-   
+
    .custom-tile{
       background-color: white;
    }
@@ -52,11 +52,24 @@
       <div class="columns">
          <div class="column is-6">
             <h1 class="title">Classes</h1>
-            <div v-for="c in classes" class="panel">
+            <div v-for="(c, idx) in classes" class="panel">
                <div class="panel-heading" @click="left_sel == c.id ? left_sel = 0 : left_sel = c.id">
                   <span class="icon" v-if="left_sel == c.id"><i class="fa fa-chevron-down"></i></span>
                   <span class="icon" v-else><i class="fa fa-chevron-right"></i></span>
                   <span>{{c.name}}</span>
+               </div>
+               <div class="panel-block" v-show="left_sel == c.id">
+                  <div class="columns control is-mobile">
+                     <div class="column is-8">
+                        <input class="input is-static has-text-weight-bold" value="Description" readonly>
+                         <p>{{c.description}}</p>
+                     </div>
+                     <div class="column">
+                        <button @click="delete_class(idx)" class="button is-danger is-pulled-right">
+                           <span class="icon"><i class="fa fa-trash"></i></span><span>Remove Class</span>
+                        </button>
+                     </div>
+                  </div>
                </div>
                <div class="panel-block" v-show="left_sel == c.id">
                   <div class="columns control is-mobile">
@@ -69,11 +82,6 @@
                         <input class="input" type="number" min="0" max="99" v-for="(_, q_idx) in quarter_names" v-model="c.num_sections[q_idx]" @change="edit_class(idx)"
                                :class="{'is-danger': c.num_sections[q_idx] === '' || !Number.isInteger(Number(c.num_sections[q_idx])) || Number(c.num_sections[q_idx]) < 0 || Number(c.num_sections[q_idx]) > 99}"
                         >
-                     </div>
-                     <div class="column">
-                        <button @click="delete_class(idx)" class="button is-danger is-pulled-right">
-                           <span class="icon"><i class="fa fa-trash"></i></span><span>Remove Class</span>
-                        </button>
                      </div>
                   </div>
                </div>
@@ -129,6 +137,19 @@
                </div>
                <div class="panel-block" v-show="right_sel == p.id">
                   <div class="columns control is-mobile">
+                     <div class="column is-8">
+                        <input class="input is-static has-text-weight-bold" value="Description" readonly>
+                         <p>{{p.description}}</p>
+                     </div>
+                     <div class="column is-warning">
+                        <button @click="delete_professor(idx)" class="button is-danger is-pulled-right">
+                           <span class="icon"><i class="fa fa-trash"></i></span><span>Remove Professor</span>
+                        </button>
+                     </div>
+                  </div>
+               </div>
+               <div class="panel-block" v-show="right_sel == p.id">
+                  <div class="columns control is-mobile">
                      <div class="column is-3">
                         <input class="input is-static has-text-weight-bold" value="Quarter" readonly>
                         <input v-for="(quarter, idx2) in quarter_names" class="input is-static" :value="quarter" readonly
@@ -144,11 +165,6 @@
                               </select>
                            </div>
                         </div>
-                     </div>
-                     <div class="column is-warning">
-                        <button @click="delete_professor(idx)" class="button is-danger is-pulled-right">
-                           <span class="icon"><i class="fa fa-trash"></i></span><span>Remove Professor</span>
-                        </button>
                      </div>
                   </div>
                </div>
@@ -232,14 +248,14 @@
             <tbody>
                   <tr v-for="c in classes">
                      <td v-for="field in ['name']" class="row-title" :colspan="num_quarters" :key="update_dropdown_menu" :style="{ width: `${100 / num_quarters}%` }">
-                     
+
                         {{c[field]}}
-                        
+
                         <table class="table is-striped is-fullwidth">
                            <tr>
                               <td v-for="(q, idx) in quarter_names" :style="{ width: `${100 / num_quarters}%`, textAlign: 'center', backgroundColor: 'wheat'}">
                                  <div class="tile is-ancestor">
-                                    <div class="tile"> 
+                                    <div class="tile">
                                        <div class="tile is-parent is-vertical">
 
                                           <div class="tile is-child box notification custom-tile" v-for="(p, idx2) in view_2_data[c.id][idx]" @mouseover="hover_match_menu(q + idx2 + ' ' + p.id)" @mouseout="unhover_match_menu()">
@@ -287,21 +303,21 @@
                                        </div>
                                     </div>
                                  </div>
-                                
+
                               </td>
 
                            </tr>
 
 
                         </table>
-                        
-                        
+
+
                      </td>
-                     
-                     
+
+
                   </tr>
-                     
-                  
+
+
 
             </tbody>
 
@@ -347,17 +363,17 @@
             <tbody>
                   <tr v-for="p in professors">
                      <td v-for="field in ['name']" class="row-title" :colspan="num_quarters" :key="update_dropdown_menu_view3">
-                     
-                        {{p[field]}} 
-                        
+
+                        {{p[field]}}
+
                         <table class="table is-striped is-fullwidth">
                            <tr>
                               <td v-for="(q, idx) in quarter_names" :style="{ width: `${100 / num_quarters}%`, textAlign: 'center', backgroundColor: 'wheat'}">
                                  <div class="tile is-ancestor">
-                                    <div class="tile"> 
+                                    <div class="tile">
                                        <div class="tile is-parent is-vertical">
 
-                                          <div class="tile is-child box notification custom-tile" v-for="(c, idx2) in view_3_data[p.id][idx]" @mouseover="hover_match_menu(q + idx2 + ' ' + p.id)" @mouseout="unhover_match_menu()"> 
+                                          <div class="tile is-child box notification custom-tile" v-for="(c, idx2) in view_3_data[p.id][idx]" @mouseover="hover_match_menu(q + idx2 + ' ' + p.id)" @mouseout="unhover_match_menu()">
 
                                              <div class="columns">
                                                 <div class="column is-one-quarter"></div>
@@ -394,7 +410,7 @@
                                                 </div>
                                              </div>
                                           </div>
-                                          
+
                                           <div class="tile is-child" v-else @mouseenter="hover_dropdown_menu_view_3(p.id + q)" @mouseleave="unhover_dropdown_menu_view_3()">
                                              <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                                           </div>
@@ -408,14 +424,14 @@
 
 
                         </table>
-                        
-                        
+
+
                      </td>
-                     
-                     
+
+
                   </tr>
-                     
-                  
+
+
 
             </tbody>
 
@@ -429,7 +445,7 @@
 </div>
 
 <!-- Places view buttons on navbar located in layout -->
-[[block page_menu_items]] 
+[[block page_menu_items]]
    <div class="navbar-item ml-3" id="app_view">
       <div class="navbar-item">
          <button id="view_one" class="button is_normal is-responsive is-rounded is-dark is-outlined is-inverted" @click="change_view(1)">View 1</button>
