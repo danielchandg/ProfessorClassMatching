@@ -605,7 +605,6 @@ let init = function (app) {
   }
 
   app.unhover_dropdown_menu = function(){
-    app.vue.hovered_class_term = '';
     app.force_update_dropdown_menu();
   }
 
@@ -615,7 +614,6 @@ let init = function (app) {
   }
 
   app.unhover_dropdown_menu_view_3 = function(){
-    pp.vue.hovered_prof_term = '';
     app.force_update_dropdown_menu();
   }
 
