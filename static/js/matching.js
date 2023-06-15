@@ -88,13 +88,6 @@ let init = function (app) {
       num_sections: num_sections,
       created_on: curTime.toString()
     });
-    app.vue.allClasses.push({
-      id: -1,
-      name: name,
-      description: description,
-      num_sections: num_sections,
-      created_on: curTime.toString()
-    });
     app.reset_class_form();
     app.vue.add_class_mode = false;
     axios.post(add_class_url, {
@@ -124,7 +117,6 @@ let init = function (app) {
     for(let i = app.vue.classes.length - 1; i >= 0; i--) {
       if(app.vue.classes[i].name === name && app.vue.classes[i].id === -1) {
         app.vue.classes[i].id = id;
-        app.vue.allClasses[i].id = id;
         return true;
       }
     }
@@ -136,7 +128,6 @@ let init = function (app) {
     for (let i = app.vue.classes.length - 1; i >= 0; i--) {
       if (app.vue.classes[i].name === name) {
         app.vue.classes.splice(i, 1);
-        app.vue.allClasses.splice(i, 1);
         return true;
       }
     }
@@ -224,13 +215,6 @@ let init = function (app) {
         num_sections: num_sections,
         created_on: created_on
       });
-      app.vue.allClasses.push({
-        id: id,
-        name: name,
-        description: description,
-        num_sections: num_sections,
-        created_on: created_on
-      });
     });
   }
 
@@ -257,13 +241,6 @@ let init = function (app) {
     const curTime = new Date();
     console.log(`Adding professor ${name}`);
     app.vue.professors.push({
-      id: -1,
-      name: name,
-      description: description,
-      requested_classes: requested_classes,
-      created_on: curTime.toString()
-    });
-    app.vue.allProfessors.push({
       id: -1,
       name: name,
       description: description,
@@ -308,7 +285,6 @@ let init = function (app) {
     for(let i = app.vue.professors.length - 1; i >= 0; i--) {
       if(app.vue.professors[i].name === name && app.vue.professors[i].id === -1) {
         app.vue.professors[i].id = id;
-        app.vue.allProfessors[i].id = id;
         return true;
       }
     }
@@ -320,7 +296,6 @@ let init = function (app) {
     for (let i = app.vue.professors.length - 1; i >= 0; i--) {
       if (app.vue.professors[i].name === name) {
         app.vue.professors.splice(i, 1);
-        app.vue.allProfessors.splice(i, 1);
         return true;
       }
     }
@@ -390,13 +365,6 @@ let init = function (app) {
     }).catch(function (error) {
       console.error(`Error when deleting professor ${name}:`, error);
       app.vue.professors.push({
-        id: id,
-        name: name,
-        description: description,
-        requested_classes: requested_classes,
-        created_on: created_on
-      });
-      app.vue.allProfessors.push({
         id: id,
         name: name,
         description: description,
@@ -637,7 +605,6 @@ let init = function (app) {
   }
 
   app.unhover_dropdown_menu = function(){
-    app.vue.hovered_class_term = '';
     app.force_update_dropdown_menu();
   }
 
@@ -647,7 +614,6 @@ let init = function (app) {
   }
 
   app.unhover_dropdown_menu_view_3 = function(){
-    pp.vue.hovered_prof_term = '';
     app.force_update_dropdown_menu();
   }
 
