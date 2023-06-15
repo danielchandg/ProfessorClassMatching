@@ -47,11 +47,11 @@
          <button class="modal-close is-large" aria-label="close" @click="dismiss_view_tutorial"></button>
       </div>
 
-      <h1 class="title">This is view 1</h1>
+      <h3 class="title is-3">{{matching_name}}</h3>
 
-      <div class="columns">
+      <div class="columns" :style="{'marginTop': '32px'}">
          <div class="column is-6">
-            <h1 class="title">Classes</h1>
+            <h4 class="title is-4">Classes</h4>
             <div v-for="(c, idx) in classes" class="panel">
                <div class="panel-heading" @click="left_sel == c.id ? left_sel = 0 : left_sel = c.id">
                   <span class="icon" v-if="left_sel == c.id"><i class="fa fa-chevron-down"></i></span>
@@ -65,7 +65,7 @@
                          <p>{{c.description}}</p>
                      </div>
                      <div class="column">
-                        <button @click="delete_class(idx)" class="button is-danger is-pulled-right">
+                        <button @click="delete_class(idx)" class="button is-danger is-pulled-right is-small">
                            <span class="icon"><i class="fa fa-trash"></i></span><span>Remove Class</span>
                         </button>
                      </div>
@@ -128,7 +128,7 @@
             </div>
          </div>
          <div class="column is-6">
-            <h1 class="title">Professors</h1>
+            <h4 class="title is-4">Professors</h4>
             <div v-for="(p, idx) in professors" class="panel">
                <div class="panel-heading" @click="right_sel == p.id ? right_sel = 0 : right_sel = p.id">
                   <span class="icon" v-if="right_sel == p.id"><i class="fa fa-chevron-down"></i></span>
@@ -142,7 +142,7 @@
                          <p>{{p.description}}</p>
                      </div>
                      <div class="column is-warning">
-                        <button @click="delete_professor(idx)" class="button is-danger is-pulled-right">
+                        <button @click="delete_professor(idx)" class="button is-danger is-pulled-right is-small">
                            <span class="icon"><i class="fa fa-trash"></i></span><span>Remove Professor</span>
                         </button>
                      </div>
@@ -216,7 +216,7 @@
    </div>
 
    <div v-if="view === 2">
-      <h1 class="title">This is view 2</h1>
+      <h3 class="title is-3">{{matching_name}}</h3>
       <!-- Insert content of view 2 here -->
       <div class="modal" :class="{ 'is-active': view2_tutorial_mode }">
          <div class="modal-background" @click="dismiss_view_tutorial"></div>
@@ -258,14 +258,14 @@
                                     <div class="tile">
                                        <div class="tile is-parent is-vertical">
 
-                                          <div class="tile is-child box notification custom-tile" v-for="(p, idx2) in view_2_data[c.id][idx]" @mouseover="hover_match_menu(q + idx2 + ' ' + p.id)" @mouseout="unhover_match_menu()">
+                                          <div class="tile is-child box notification custom-tile" v-for="(p, idx2) in view_2_data[c.id][idx]" @mouseover="hover_match_menu(q + idx2 + ' ' + c.id)" @mouseout="unhover_match_menu()">
                                              <div class="columns">
-                                                <div class="column is-one-quarter"></div>
-                                                <div class="column is-half">
+                                                <div class="column is-2"></div>
+                                                <div class="column is-8">
                                                    <p class="subtitle is-6" :style="{ marginTop: `9px`}">{{p.name}}</p>
                                                 </div>
-                                                <div class="column">
-                                                   <button class="button is-link is-inverted" v-if="hovered_match == q + idx2 + ' ' + p.id" @click="delete_match(c.id, p.id, idx)">
+                                                <div class="column" :style="{ marginLeft: '-10px' }">
+                                                   <button class="button is-link is-inverted" v-if="hovered_match == q + idx2 + ' ' + c.id" @click="delete_match(c.id, p.id, idx)">
                                                       <span class="icon">
                                                          <i class="fa fa-times"></i>
                                                       </span>
@@ -331,7 +331,7 @@
    </div>
 
    <div v-if="view === 3">
-      <h1 class="title">This is view 3</h1>
+      <h3 class="title is-3">{{matching_name}}</h3>
       <!-- Insert content of view 3 here -->
       <div class="modal" :class="{ 'is-active': view3_tutorial_mode }">
          <div class="modal-background" @click="dismiss_view_tutorial"></div>
@@ -376,11 +376,11 @@
                                           <div class="tile is-child box notification custom-tile" v-for="(c, idx2) in view_3_data[p.id][idx]" @mouseover="hover_match_menu(q + idx2 + ' ' + p.id)" @mouseout="unhover_match_menu()">
 
                                              <div class="columns">
-                                                <div class="column is-one-quarter"></div>
-                                                <div class="column is-half">
+                                                <div class="column is-2"></div>
+                                                <div class="column is-8">
                                                    <p class="subtitle is-6" :style="{ marginTop: `9px`}">{{c.name}}</p>
                                                 </div>
-                                                <div class="column">
+                                                <div class="column" :style="{ marginLeft: '-10px' }">
                                                    <button class="button is-link is-inverted" v-if="hovered_match == q + idx2 + ' ' + p.id" @click="delete_match(c.id, p.id, idx)">
                                                       <span class="icon">
                                                          <i class="fa fa-times"></i>
