@@ -43,6 +43,7 @@ def index():
         load_matchings_url = URL('load_matchings', signer=url_signer),
         add_matching_url = URL('add_matching', signer=url_signer),
         edit_matching_url = URL('edit_matching', signer=url_signer),
+        duplicate_matching_url = URL('duplicate_matching', signer=url_signer),
         delete_matching_url = URL('delete_matching', signer=url_signer)
     )
 
@@ -201,11 +202,11 @@ def delete_matching():
     return f'ok deleted matching {id}'
 
 # This route is for duplicating a matching
-# TODO:
-# Needs to be tested
 @action('duplicate_matching', method='POST')
 @action.uses(url_signer.verify(), db, auth.user)
 def duplicate_matching():
+    my_settings = db(db.settings.user_id == get_user_id()).select().first()
+    assert my_settings is not None
     created_on = request.json.get('created_on')
     old_matching_id = request.json.get('matching_id')
     my_matching = db.matchings[old_matching_id]
@@ -233,17 +234,10 @@ def duplicate_matching():
     old_to_new_professor = dict()
     for p in my_matching.professors.select():
         old_id = p.id
-        old_my_classes = p.my_classes
-        new_my_classes = []
-        for qc in old_my_classes:
-            quarter_num, class_id = [int(i) for i in qc.split()]
-            assert class_id in old_to_new_class
-            new_my_classes.append(f'{quarter_num} {old_to_new_class[class_id]}')
         new_id = db.professors.insert(
-            name_ = p.name,
+            name_ = p.name_,
             matching_id = new_matching_id,
             description = p.description,
-            my_classes = new_my_classes,
             time_created = created_on
         )
         old_to_new_professor[old_id] = new_id
@@ -260,7 +254,8 @@ def duplicate_matching():
             quarter = m.quarter,
             time_created = created_on
         )
-
+    my_settings.matching_ids = my_settings.matching_ids + [new_matching_id]
+    my_settings.update_record()
     return dict(id=new_matching_id)
 
 # TODO
